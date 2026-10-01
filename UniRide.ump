@@ -1,0 +1,59 @@
+namespace ca.mcgill.ecse428.uniride.model;
+
+// Covers the "next sprint" backlog items:
+// ID01 Add New User, ID03 Create ride listing, ID04 Search for rides, ID05 Request for seat, ID07 Respond to a seat request.
+
+class Person {
+  autounique id;
+  unique studentID;
+  unique email; // McGill email
+  password;
+  firstName;
+  lastName;
+  phoneNumber;
+}
+
+class PersonRole {
+  autounique id;
+  abstract;
+}
+
+class PersonRoleAssignment {
+  * -> 0..2 PersonRole;
+  * -> 1 Person;
+}
+
+class Driver {
+  isA PersonRole;
+  // vehicle details (ID15, ID16) to be added once groomed
+}
+
+class Passenger {
+  isA PersonRole;
+}
+
+class Ride {
+  depend java.time.LocalDateTime;
+  autounique id;
+  origin;
+  destination;
+  LocalDateTime departureDateTime;
+  int totalSeats;
+  double pricePerSeat;
+  enum Status { Open, Full, Finished, Cancelled }
+  Status status;
+  * -> 1 Driver;
+  // availableSeats = totalSeats - sum(seatsRequested of Accepted SeatRequests)
+  // ID04 search = query on origin / destination / departureDate over Open rides
+}
+
+class SeatRequest {
+  autounique id;
+  int seatsRequested;
+
+  enum Status { Pending, Accepted, Rejected }
+  Status status;
+
+  * -> 1 Ride;
+  * -> 1 Passenger;
+}
