@@ -25,6 +25,7 @@ class PersonRoleAssignment {
 
 class Driver {
   isA PersonRole;
+  unique licenseNumber;
   // vehicle details (ID15, ID16) to be added once groomed
 }
 
