@@ -23,29 +23,32 @@ And the following rides exist:
 | 7       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2027-05-08 14:00    | 4           | 0              | 15.0           | Cancelled |
 | 8       | sara.nguyen@mail.mcgill.ca | Montreal | Ottawa      | 2026-09-01 09:00    | 4           | 0              | 15.0           | Finished  |
 
-Scenario Outline: Passenger searches for rides by origin, destination and date (Normal Flow)
+Scenario: Passenger searches for rides with several matches (Normal Flow)
+
+When passenger "jef.smith@mail.mcgill.ca" searches for rides from Montreal to Ottawa on 2027-05-08
+Then the following rides are returned in order of departure time:
+| ride_id | driver      | origin   | destination | departure_date_time | price_per_seat | available_seats |
+| 1       | Marc Lavoie | Montreal | Ottawa      | 2027-05-08 09:00    | 15.0           | 3               |
+| 2       | Sara Nguyen | Montreal | Ottawa      | 2027-05-08 17:30    | 18.0           | 3               |
+
+Scenario Outline: Passenger searches for rides with a single match (Normal Flow)
 
 When passenger "jef.smith@mail.mcgill.ca" searches for rides from <origin> to <destination> on <departure_date>
-Then the rides <ride_ids> are returned in order of departure time
-And each returned ride shows its driver, departure time, price per seat and available seats
+Then the following rides are returned in order of departure time:
+| ride_id   | driver   | origin   | destination   | departure_date_time   | price_per_seat   | available_seats   |
+| <ride_id> | <driver> | <origin> | <destination> | <departure_date_time> | <price_per_seat> | <available_seats> |
 
 Examples:
-| origin   | destination | departure_date | ride_ids |
-| Montreal | Ottawa      | 2027-05-08     | 1, 2     |
-| Montreal | Ottawa      | 2027-05-09     | 3        |
-| Montreal | Toronto     | 2027-05-08     | 4        |
-| Ottawa   | Montreal    | 2027-05-08     | 5        |
+| origin   | destination | departure_date | ride_id | driver      | departure_date_time | price_per_seat | available_seats |
+| Montreal | Ottawa      | 2027-05-09     | 3       | Marc Lavoie | 2027-05-09 09:00    | 15.0           | 4               |
+| Montreal | Toronto     | 2027-05-08     | 4       | Sara Nguyen | 2027-05-08 08:00    | 30.0           | 1               |
+| Ottawa   | Montreal    | 2027-05-08     | 5       | Marc Lavoie | 2027-05-08 18:00    | 15.0           | 4               |
 
-Scenario Outline: Returned rides show the number of available seats (Normal Flow)
+Scenario: Search results only show details relevant to the passenger (Normal Flow)
 
-When passenger "jef.smith@mail.mcgill.ca" searches for rides from <origin> to <destination> on <departure_date>
-Then ride <ride_id> is returned with <available_seats> available seats
-
-Examples:
-| origin   | destination | departure_date | ride_id | available_seats |
-| Montreal | Ottawa      | 2027-05-08     | 1       | 3               |
-| Montreal | Ottawa      | 2027-05-08     | 2       | 3               |
-| Montreal | Toronto     | 2027-05-08     | 4       | 1               |
+When passenger "jef.smith@mail.mcgill.ca" searches for rides from Montreal to Ottawa on 2027-05-08
+Then each returned ride does not show the driver's email, phone number or license number
+And each returned ride does not show its total seats or accepted seat requests
 
 Scenario Outline: Passenger searches with only some of the criteria (Alternate Flow)
 
