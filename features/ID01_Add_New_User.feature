@@ -11,6 +11,7 @@ When the student requests to register as a UniRide user with password <password>
 Then a new UniRide user is created with student ID <student_id> and email <email>
 And the user is assigned the role <role>
 
+Examples:
 | first_name | last_name | student_id | email                         | phone_number | password    | role                 | license_number |
 | Alice      | Tremblay  | 260100001  | alice.tremblay@mail.mcgill.ca | 514-555-0101 | Str0ngPass! | Passenger            |                |
 | Bob        | Chen      | 260100002  | bob.chen@mail.mcgill.ca       | 514-555-0102 | Str0ngPass! | Driver               | D1234-567890   |
@@ -22,6 +23,7 @@ Given no UniRide user exists with email <stored_email>
 When student Dana Roy registers with email <entered_email>
 Then a new UniRide user is created with email <stored_email>
 
+Examples:
 | stored_email                | entered_email               |
 | dana.roy@mail.mcgill.ca     | Dana.Roy@Mail.McGill.ca     |
 
@@ -32,6 +34,7 @@ When Fred Smith requests to register as a UniRide user
 Then an "Unauthorized request" message is issued
 And no UniRide user is created with email <email>
 
+Examples:
 | email                        |
 | fred.smith@gmail.com         |
 | fred.smith@concordia.ca      |
@@ -44,6 +47,7 @@ When Bill Jones requests to register as a UniRide user with email <entered_email
 Then an "Already registered" message is issued
 And no additional UniRide user is created
 
+Examples:
 | email                      | entered_email              |
 | bill.jones@mail.mcgill.ca  | bill.jones@mail.mcgill.ca  |
 | bill.jones@mail.mcgill.ca  | Bill.Jones@Mail.McGill.ca  |
@@ -55,6 +59,7 @@ When student Gina Park with student ID <student_id> requests to register as a Un
 Then an "Already registered" message is issued
 And no additional UniRide user is created
 
+Examples:
 | student_id |
 | 260100001  |
 
@@ -65,6 +70,7 @@ When student Omar Haddad requests to register as a UniRide user with role Driver
 Then an "License number already in use" message is issued
 And no additional UniRide user is created
 
+Examples:
 | license_number |
 | D1234-567890   |
 
@@ -75,6 +81,7 @@ When Hana Ito requests to register as a UniRide user with email <email>
 Then an "Invalid email format" message is issued
 And no UniRide user is created
 
+Examples:
 | email                  |
 | hana.ito               |
 | hana.ito@              |
@@ -88,6 +95,7 @@ When Ivan Petrov requests to register as a UniRide user with <field> left blank
 Then a "<field> is required" message is issued
 And no UniRide user is created
 
+Examples:
 | field          |
 | first name     |
 | last name      |
@@ -110,6 +118,7 @@ When Jade Wong requests to register as a UniRide user with password <password>
 Then a "Password does not meet requirements" message is issued
 And no UniRide user is created
 
+Examples:
 | password     |
 | abc          |
 | password     |
@@ -122,5 +131,6 @@ When Kai Lopez requests to register with password <password> and confirmation <c
 Then a "Passwords do not match" message is issued
 And no UniRide user is created
 
+Examples:
 | password      | confirmation  |
 | Str0ngPass!   | Str0ngPass?   |
