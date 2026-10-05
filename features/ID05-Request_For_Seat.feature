@@ -17,9 +17,10 @@ And the following rides exist:
 | 1       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-10 09:00    | 4           | 0              | 15.0           | Open      |
 | 2       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-10 14:00    | 4           | 1              | 15.0           | Open      |
 | 3       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-11 09:00    | 4           | 2              | 15.0           | Open      |
-| 4       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-11 12:00    | 2           | 2              | 15.0           | Full      |
-| 5       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-10-20 09:00    | 4           | 0              | 15.0           | Finished  |
+| 4       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-11 12:00    | 3           | 2              | 15.0           | Open      |
+| 5       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-12 09:00    | 4           | 4              | 15.0           | Full      |
 | 6       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-12 14:00    | 4           | 0              | 15.0           | Cancelled |
+| 7       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-10-20 09:00    | 4           | 4              | 15.0           | Finished  |
 
 Scenario Outline: Passenger requests seats on an open ride (Normal Flow)
 
@@ -40,7 +41,7 @@ And no seat request is created
 Examples:
 | ride_id | seats_requested |
 | 3       | 3 seats         |
-| 2       | 4 seats         |
+| 4       | 2 seats         |
 
 Scenario Outline: Passenger already has a seat request on the ride (Error Flow)
 
@@ -62,9 +63,9 @@ And no seat request is created
 
 Examples:
 | ride_id | status    |
-| 4       | Full      |
-| 5       | Finished  |
+| 5       | Full      |
 | 6       | Cancelled |
+| 7       | Finished  |
 
 Scenario Outline: Passenger requests zero or negative seats (Error Flow)
 
