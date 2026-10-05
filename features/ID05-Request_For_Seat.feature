@@ -5,9 +5,10 @@ I would like to request seats on a ride
 So that I can travel to my destination
 
 Background:
-Given the following drivers exist:
-| email                     | firstName | lastName | licenseNumber | student_id |
-| marc.lavoie@mail.mcgill.ca | Marc      | Lavoie   | QC123456     | 1234567890 |
+Given the current date is "2026-11-01"
+And the following drivers exist:
+| email                      | studentID | firstName | lastName | licenseNumber |
+| marc.lavoie@mail.mcgill.ca | 260200002 | Marc      | Lavoie   | QC123456      |
 And the following passengers exist:
 | email                    | studentID | firstName | lastName |
 | jef.smith@mail.mcgill.ca | 260200001 | Jef       | Smith    |
@@ -16,8 +17,8 @@ And the following rides exist:
 | 1       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-10 09:00    | 4           | 0              | 15.0           | Open      |
 | 2       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-10 14:00    | 4           | 1              | 15.0           | Open      |
 | 3       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-11 09:00    | 4           | 2              | 15.0           | Open      |
-| 4       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-11 12:00    | 2           | 2              | 15.0           | Open      |
-| 5       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-12 09:00    | 4           | 0              | 15.0           | Closed    |
+| 4       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-11 12:00    | 2           | 2              | 15.0           | Full      |
+| 5       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-10-20 09:00    | 4           | 0              | 15.0           | Finished  |
 | 6       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-12 14:00    | 4           | 0              | 15.0           | Cancelled |
 
 Scenario Outline: Passenger requests seats on an open ride (Normal Flow)
@@ -39,7 +40,7 @@ And no seat request is created
 Examples:
 | ride_id | seats_requested |
 | 3       | 3               |
-| 4       | 1               |
+| 2       | 4               |
 
 Scenario Outline: Passenger already has a seat request on the ride (Error Flow)
 
@@ -53,16 +54,17 @@ Examples:
 | 1       | "Pending"       | 1               |
 | 1       | "Accepted"      | 2               |
 
-Scenario Outline: Passenger requests seats on a closed or cancelled ride (Error Flow)
+Scenario Outline: Passenger requests a seat on a ride that is not open (Error Flow)
 
-When passenger "jef.smith@mail.mcgill.ca" requests 1 seats on ride <ride_id>
+When passenger "jef.smith@mail.mcgill.ca" requests 1 seat on ride <ride_id>
 Then a "Ride is not open for requests" message is issued
 And no seat request is created
 
 Examples:
-| ride_id |
-| 5       |
-| 6       |
+| ride_id | status    |
+| 4       | Full      |
+| 5       | Finished  |
+| 6       | Cancelled |
 
 Scenario Outline: Passenger requests zero or negative seats (Error Flow)
 
