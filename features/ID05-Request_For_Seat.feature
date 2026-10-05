@@ -6,7 +6,7 @@ So that I can travel to my destination
 
 Background:
 Given the following drivers exist:
-| email                     | firstName | lastName | licenseNumber |
+| email                     | firstName | lastName | licenseNumber | student_id
 | marc.lavoie@mail.mcgill.ca | Marc      | Lavoie   | QC123456      |
 And the following passengers exist:
 | email                    | studentID | firstName | lastName |
