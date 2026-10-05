@@ -16,9 +16,10 @@ And the following rides exist:
 | 1       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-10 09:00    | 4           | 0              | 15.0           | Open      |
 | 2       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-10 14:00    | 4           | 1              | 15.0           | Open      |
 | 3       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-11 09:00    | 4           | 2              | 15.0           | Open      |
-| 4       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-11 12:00    | 2           | 2              | 15.0           | Open      |
-| 5       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-12 09:00    | 4           | 0              | 15.0           | Closed    |
+| 4       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-11 12:00    | 3           | 2              | 15.0           | Open      |
+| 5       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-12 09:00    | 4           | 4              | 15.0           | Full      |
 | 6       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-12 14:00    | 4           | 0              | 15.0           | Cancelled |
+| 7       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-13 09:00    | 4           | 4              | 15.0           | Finished  |
 
 Scenario Outline: Passenger requests seats on an open ride (Normal Flow)
 
@@ -39,7 +40,7 @@ And no seat request is created
 Examples:
 | ride_id | seats_requested |
 | 3       | 3               |
-| 4       | 1               |
+| 4       | 2               |
 
 Scenario Outline: Passenger already has a seat request on the ride (Error Flow)
 
@@ -53,7 +54,7 @@ Examples:
 | 1       | "Pending"       | 1               |
 | 1       | "Accepted"      | 2               |
 
-Scenario Outline: Passenger requests seats on a closed or cancelled ride (Error Flow)
+Scenario Outline: Passenger requests seats on a ride that is not open (Error Flow)
 
 When passenger "jef.smith@mail.mcgill.ca" requests 1 seats on ride <ride_id>
 Then a "Ride is not open for requests" message is issued
@@ -63,6 +64,7 @@ Examples:
 | ride_id |
 | 5       |
 | 6       |
+| 7       |
 
 Scenario Outline: Passenger requests zero or negative seats (Error Flow)
 
