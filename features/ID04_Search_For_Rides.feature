@@ -14,14 +14,14 @@ And the following passengers exist:
 | jef.smith@mail.mcgill.ca | 260200001 | Jef       | Smith    |
 And the following rides exist:
 | ride_id | driver                     | origin   | destination | departure_date_time | total_seats | accepted_seats | price_per_seat | status    |
-| 1       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-08 09:00    | 4           | 1              | 15.0           | Open      |
-| 2       | sara.nguyen@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-08 17:30    | 3           | 0              | 18.0           | Open      |
-| 3       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-09 09:00    | 4           | 0              | 15.0           | Open      |
-| 4       | sara.nguyen@mail.mcgill.ca | Montreal | Toronto     | 2026-11-08 08:00    | 3           | 2              | 30.0           | Open      |
-| 5       | marc.lavoie@mail.mcgill.ca | Ottawa   | Montreal    | 2026-11-08 18:00    | 4           | 0              | 15.0           | Open      |
-| 6       | sara.nguyen@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-08 12:00    | 2           | 2              | 15.0           | Full      |
-| 7       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-08 14:00    | 4           | 0              | 15.0           | Cancelled |
-| 8       | sara.nguyen@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-01 09:00    | 4           | 0              | 15.0           | Finished  |
+| 1       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2027-05-08 09:00    | 4           | 1              | 15.0           | Open      |
+| 2       | sara.nguyen@mail.mcgill.ca | Montreal | Ottawa      | 2027-05-08 17:30    | 3           | 0              | 18.0           | Open      |
+| 3       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2027-05-09 09:00    | 4           | 0              | 15.0           | Open      |
+| 4       | sara.nguyen@mail.mcgill.ca | Montreal | Toronto     | 2027-05-08 08:00    | 3           | 2              | 30.0           | Open      |
+| 5       | marc.lavoie@mail.mcgill.ca | Ottawa   | Montreal    | 2027-05-08 18:00    | 4           | 0              | 15.0           | Open      |
+| 6       | sara.nguyen@mail.mcgill.ca | Montreal | Ottawa      | 2027-05-08 12:00    | 2           | 2              | 15.0           | Full      |
+| 7       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2027-05-08 14:00    | 4           | 0              | 15.0           | Cancelled |
+| 8       | sara.nguyen@mail.mcgill.ca | Montreal | Ottawa      | 2026-09-01 09:00    | 4           | 0              | 15.0           | Finished  |
 
 Scenario Outline: Passenger searches for rides by origin, destination and date (Normal Flow)
 
@@ -31,10 +31,10 @@ And each returned ride shows its driver, departure time, price per seat and avai
 
 Examples:
 | origin   | destination | departure_date | ride_ids |
-| Montreal | Ottawa      | 2026-11-08     | 1, 2     |
-| Montreal | Ottawa      | 2026-11-09     | 3        |
-| Montreal | Toronto     | 2026-11-08     | 4        |
-| Ottawa   | Montreal    | 2026-11-08     | 5        |
+| Montreal | Ottawa      | 2027-05-08     | 1, 2     |
+| Montreal | Ottawa      | 2027-05-09     | 3        |
+| Montreal | Toronto     | 2027-05-08     | 4        |
+| Ottawa   | Montreal    | 2027-05-08     | 5        |
 
 Scenario Outline: Returned rides show the number of available seats (Normal Flow)
 
@@ -43,9 +43,9 @@ Then ride <ride_id> is returned with <available_seats> available seats
 
 Examples:
 | origin   | destination | departure_date | ride_id | available_seats |
-| Montreal | Ottawa      | 2026-11-08     | 1       | 3               |
-| Montreal | Ottawa      | 2026-11-08     | 2       | 3               |
-| Montreal | Toronto     | 2026-11-08     | 4       | 1               |
+| Montreal | Ottawa      | 2027-05-08     | 1       | 3               |
+| Montreal | Ottawa      | 2027-05-08     | 2       | 3               |
+| Montreal | Toronto     | 2027-05-08     | 4       | 1               |
 
 Scenario Outline: Passenger searches with only some of the criteria (Alternate Flow)
 
@@ -56,12 +56,12 @@ Examples:
 | origin   | destination | departure_date | ride_ids      |
 | Montreal |             |                | 4, 1, 2, 3    |
 |          | Ottawa      |                | 1, 2, 3       |
-|          |             | 2026-11-08     | 4, 1, 2, 5    |
+|          |             | 2027-05-08     | 4, 1, 2, 5    |
 | Montreal | Ottawa      |                | 1, 2, 3       |
 
 Scenario Outline: Search is not case sensitive (Alternate Flow)
 
-When passenger "jef.smith@mail.mcgill.ca" searches for rides from <origin> to <destination> on 2026-11-08
+When passenger "jef.smith@mail.mcgill.ca" searches for rides from <origin> to <destination> on 2027-05-08
 Then the rides 1, 2 are returned in order of departure time
 
 Examples:
@@ -90,9 +90,9 @@ And a "No rides found" message is issued
 
 Examples:
 | origin   | destination | departure_date |
-| Montreal | Quebec City | 2026-11-08     |
-| Toronto  | Ottawa      | 2026-11-08     |
-| Montreal | Ottawa      | 2026-11-20     |
+| Montreal | Quebec City | 2027-05-08     |
+| Toronto  | Ottawa      | 2027-05-08     |
+| Montreal | Ottawa      | 2027-05-20     |
 
 Scenario Outline: Passenger searches with an invalid departure date (Error Flow)
 
@@ -102,20 +102,19 @@ And no rides are returned
 
 Examples:
 | departure_date |
-| 2026-02-30     |
-| 08/11/2026     |
+| 2027-02-30     |
+| 08/05/2027     |
 | tomorrow       |
 
 Scenario: Passenger searches for rides on a past date (Error Flow)
 
-Given the current date is 2026-11-05
-When passenger "jef.smith@mail.mcgill.ca" searches for rides from Montreal to Ottawa on 2026-11-01
+When passenger "jef.smith@mail.mcgill.ca" searches for rides from Montreal to Ottawa on 2026-09-01
 Then a "Departure date cannot be in the past" message is issued
 And no rides are returned
 
 Scenario: Unregistered user attempts to search for rides (Error Flow)
 
 Given no UniRide user exists with email "fred.smith@gmail.com"
-When "fred.smith@gmail.com" searches for rides from Montreal to Ottawa on 2026-11-08
+When "fred.smith@gmail.com" searches for rides from Montreal to Ottawa on 2027-05-08
 Then an "Unauthorized request" message is issued
 And no rides are returned
