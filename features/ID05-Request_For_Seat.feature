@@ -23,36 +23,36 @@ And the following rides exist:
 
 Scenario Outline: Passenger requests seats on an open ride (Normal Flow)
 
-When passenger "jef.smith@mail.mcgill.ca" requests <seats_requested> seats on ride <ride_id>
-Then a seat request is created for passenger "jef.smith@mail.mcgill.ca" on ride <ride_id> with <seats_requested> seats requested and status "Pending"
+When passenger "jef.smith@mail.mcgill.ca" requests <seats_requested> on ride <ride_id>
+Then a seat request is created for passenger "jef.smith@mail.mcgill.ca" on ride <ride_id> for <seats_requested> with status "Pending"
 
 Examples:
 | ride_id | seats_requested |
-| 1       | 1               |
-| 2       | 3               |
+| 1       | 1 seat          |
+| 2       | 3 seats         |
 
 Scenario Outline: Passenger requests more seats than remaining (Error Flow)
 
-When passenger "jef.smith@mail.mcgill.ca" requests <seats_requested> seats on ride <ride_id>
+When passenger "jef.smith@mail.mcgill.ca" requests <seats_requested> on ride <ride_id>
 Then a "Not enough seats available" message is issued
 And no seat request is created
 
 Examples:
 | ride_id | seats_requested |
-| 3       | 3               |
-| 2       | 4               |
+| 3       | 3 seats         |
+| 2       | 4 seats         |
 
 Scenario Outline: Passenger already has a seat request on the ride (Error Flow)
 
-Given passenger "jef.smith@mail.mcgill.ca" already has a seat request on ride <ride_id> with status <existing_status>
-When passenger "jef.smith@mail.mcgill.ca" requests <seats_requested> seats on ride <ride_id>
+Given passenger "jef.smith@mail.mcgill.ca" already has a seat request on ride <ride_id> for <existing_seats> with status "<existing_status>"
+When passenger "jef.smith@mail.mcgill.ca" requests <seats_requested> on ride <ride_id>
 Then an "Already requested" message is issued
 And no additional seat request is created
 
 Examples:
-| ride_id | existing_status | seats_requested |
-| 1       | "Pending"       | 1               |
-| 1       | "Accepted"      | 2               |
+| ride_id | existing_seats | existing_status | seats_requested |
+| 1       | 1 seat         | Pending         | 1 seat          |
+| 3       | 2 seats        | Accepted        | 1 seat          |
 
 Scenario Outline: Passenger requests a seat on a ride that is not open (Error Flow)
 
@@ -68,11 +68,11 @@ Examples:
 
 Scenario Outline: Passenger requests zero or negative seats (Error Flow)
 
-When passenger "jef.smith@mail.mcgill.ca" requests <seats_requested> seats on ride <ride_id>
+When passenger "jef.smith@mail.mcgill.ca" requests <seats_requested> on ride <ride_id>
 Then an "Invalid number of seats requested" message is issued
 And no seat request is created
 
 Examples:
 | ride_id | seats_requested |
-| 1       | 0               |
-| 2       | -1              |
+| 1       | 0 seats         |
+| 2       | -1 seats        |
