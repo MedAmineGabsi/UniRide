@@ -72,14 +72,15 @@ Examples:
 
 Scenario Outline: Rides that are not open are excluded from the results (Alternate Flow)
 
-When passenger "jef.smith@mail.mcgill.ca" searches for rides from Montreal to Ottawa on <departure_date>
-Then ride <ride_id> with status <status> is not returned
+When passenger "jef.smith@mail.mcgill.ca" searches for rides with origin Montreal and destination Ottawa
+Then the rides 1, 2, 3 are returned in order of departure time
+And ride <ride_id> with status <status> is not returned
 
 Examples:
-| departure_date | ride_id | status    |
-| 2026-11-08     | 6       | Full      |
-| 2026-11-08     | 7       | Cancelled |
-| 2026-11-01     | 8       | Finished  |
+| ride_id | status    |
+| 6       | Full      |
+| 7       | Cancelled |
+| 8       | Finished  |
 
 Scenario Outline: No rides match the search criteria (Alternate Flow)
 
