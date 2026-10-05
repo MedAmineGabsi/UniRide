@@ -5,7 +5,8 @@ I would like to request seats on a ride
 So that I can travel to my destination
 
 Background:
-Given the following drivers exist:
+Given the current date is "2026-11-01"
+And the following drivers exist:
 | email                     | firstName | lastName | licenseNumber | student_id |
 | marc.lavoie@mail.mcgill.ca | Marc      | Lavoie   | QC123456     | 1234567890 |
 And the following passengers exist:
@@ -19,12 +20,12 @@ And the following rides exist:
 | 4       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-11 12:00    | 3           | 2              | 15.0           | Open      |
 | 5       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-12 09:00    | 4           | 4              | 15.0           | Full      |
 | 6       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-12 14:00    | 4           | 0              | 15.0           | Cancelled |
-| 7       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-11-13 09:00    | 4           | 4              | 15.0           | Finished  |
+| 7       | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      | 2026-10-20 09:00    | 4           | 4              | 15.0           | Finished  |
 
 Scenario Outline: Passenger requests seats on an open ride (Normal Flow)
 
 When passenger "jef.smith@mail.mcgill.ca" requests <seats_requested> seats on ride <ride_id>
-Then a seat request is created for passenger "jef.smith@mail.mcgill.ca" on ride <ride_id> with <seats_requested> seats requested and status "Pending"
+Then a seat request is created for passenger "jef.smith@mail.mcgill.ca" on ride <ride_id> for <seats_requested> seats with status "Pending"
 
 Examples:
 | ride_id | seats_requested |
