@@ -63,6 +63,11 @@ Examples:
 |          |             | 2027-05-08     | 4, 1, 2, 5 |
 | Montreal | Ottawa      |                | 1, 2, 3    |
 
+Scenario: Passenger searches with all criteria empty (Alternate Flow)
+
+When user "jef.smith@mail.mcgill.ca" searches for rides with origin "", destination "" and departure date ""
+Then the rides "4, 1, 2, 5, 3" are returned in order of departure time
+
 Scenario Outline: Search is not case sensitive (Alternate Flow)
 
 When user "jef.smith@mail.mcgill.ca" searches for rides with origin "<origin>", destination "<destination>" and departure date "2027-05-08"
@@ -118,7 +123,7 @@ And no rides are returned
 
 Scenario: Unregistered user attempts to search for rides (Error Flow)
 
-Given no UniRide user exists with email "fred.smith@gmail.com"
-When user "fred.smith@gmail.com" searches for rides with origin "Montreal", destination "Ottawa" and departure date "2027-05-08"
+Given no UniRide user exists with email "fred.smith@mail.mcgill.ca"
+When user "fred.smith@mail.mcgill.ca" searches for rides with origin "Montreal", destination "Ottawa" and departure date "2027-05-08"
 Then an "Unauthorized request" message is issued
 And no rides are returned
