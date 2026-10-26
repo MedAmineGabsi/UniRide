@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Invalid time format" tests="5" skipped="5" failures="0" errors="0" timestamp="2026-10-26T00:57:43.397Z" hostname="Mac" time="0.0">
+  <properties/>
+  <testcase name="Example #2.1" classname="Invalid time format" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Example #2.2" classname="Invalid time format" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Example #2.3" classname="Invalid time format" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Example #2.4" classname="Invalid time format" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Example #2.5" classname="Invalid time format" time="0.0">
+    <skipped/>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
