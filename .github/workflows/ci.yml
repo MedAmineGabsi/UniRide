@@ -14,6 +14,9 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: UniRide_Backend
 
     steps:
       - name: Checkout
@@ -40,6 +43,6 @@ jobs:
         with:
           name: test-reports
           path: |
-            build/reports/tests/
-            build/reports/cucumber/
+            UniRide_Backend/build/reports/tests/
+            UniRide_Backend/build/reports/cucumber/
           if-no-files-found: ignore

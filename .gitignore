@@ -10,3 +10,7 @@ build/
 
 # OS
 .DS_Store
+
+# GitHub
+.github/modernize/
+**/.github/modernize/
