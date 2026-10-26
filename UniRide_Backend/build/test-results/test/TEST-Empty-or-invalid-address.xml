@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Empty or invalid address" tests="4" skipped="4" failures="0" errors="0" timestamp="2026-10-26T00:57:43.397Z" hostname="Mac" time="0.001">
+  <properties/>
+  <testcase name="Example #3.1" classname="Empty or invalid address" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Example #3.2" classname="Empty or invalid address" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Example #3.3" classname="Empty or invalid address" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Example #3.4" classname="Empty or invalid address" time="0.0">
+    <skipped/>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

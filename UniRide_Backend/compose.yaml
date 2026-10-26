@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: "postgres:18"
+    environment:
+      - "POSTGRES_DB=uniride"
+      - "POSTGRES_PASSWORD=uniride_password"
+      - "POSTGRES_USER=uniride_admin"
+    ports:
+      - "5432"
+    volumes:
+      - uniride_pgdata:/var/lib/postgresql
+
+  #redis:
+  #  image: 'redis:latest'
+  #  ports:
+  #    - '6379'
+
+volumes:
+  uniride_pgdata:

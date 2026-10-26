@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Search For Rides" tests="5" skipped="5" failures="0" errors="0" timestamp="2026-10-26T00:57:43.403Z" hostname="Mac" time="0.003">
+  <properties/>
+  <testcase name="Passenger searches for rides with several matches (Normal Flow)" classname="feature_classpath_features/ID04_Search_For_Rides.feature" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Search results only show details relevant to the passenger (Normal Flow)" classname="feature_classpath_features/ID04_Search_For_Rides.feature" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Passenger searches with all criteria empty (Alternate Flow)" classname="feature_classpath_features/ID04_Search_For_Rides.feature" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Passenger searches for rides on a past date (Error Flow)" classname="feature_classpath_features/ID04_Search_For_Rides.feature" time="0.0">
+    <skipped/>
+  </testcase>
+  <testcase name="Unregistered user attempts to search for rides (Error Flow)" classname="feature_classpath_features/ID04_Search_For_Rides.feature" time="0.0">
+    <skipped/>
+  </testcase>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
