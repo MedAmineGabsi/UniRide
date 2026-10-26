@@ -1,4 +1,3 @@
-@wip
 Feature: Add New User
 As a McGill Student
 I would like become a user of the UniRide ride sharing app
