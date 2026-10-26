@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Add New User" tests="1" skipped="1" failures="0" errors="0" timestamp="2026-10-26T00:57:43.381Z" hostname="Mac" time="0.009">
-  <properties/>
-  <testcase name="Driver registration with a missing license number (Error Flow)" classname="feature_classpath_features/ID01_Add_New_User.feature" time="0.0">
-    <skipped/>
-  </testcase>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
