@@ -22,7 +22,7 @@ So that I can find a ride that matches my travel plans
       |       5 | marc.lavoie@mail.mcgill.ca | Ottawa   | Montreal    |    2027-05-08 18:00 |           4 |              0 |           15.0 | Open      |
       |       6 | sara.nguyen@mail.mcgill.ca | Montreal | Ottawa      |    2027-05-08 12:00 |           2 |              2 |           15.0 | Full      |
       |       7 | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      |    2027-05-08 14:00 |           4 |              0 |           15.0 | Cancelled |
-      |       8 | sara.nguyen@mail.mcgill.ca | Montreal | Ottawa      |    2027-04-20 09:00 |           4 |              0 |           15.0 | Finished  |
+      |       8 | sara.nguyen@mail.mcgill.ca | Montreal | Ottawa      |    2027-04-20 09:00 |           4 |              0 |           15.0 | Completed |
 
   Scenario: Passenger searches for rides with several matches (Normal Flow)
     When user "jef.smith@mail.mcgill.ca" searches for rides with origin "Montreal", destination "Ottawa" and departure date "2027-05-08"
@@ -82,7 +82,7 @@ So that I can find a ride that matches my travel plans
       | ride_id | status    |
       |       6 | Full      |
       |       7 | Cancelled |
-      |       8 | Finished  |
+      |       8 | Completed |
 
   Scenario Outline: No rides match the search criteria (Alternate Flow)
     When user "jef.smith@mail.mcgill.ca" searches for rides with origin "<origin>", destination "<destination>" and departure date "<departure_date>"
