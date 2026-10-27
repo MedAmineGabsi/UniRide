@@ -36,6 +36,10 @@ public class Ride {
     @Column(name = "departure_date_time", nullable = false)
     private LocalDateTime departureDateTime;
 
+    /** Estimated trip duration, in minutes. */
+    @Column(name = "duration_minutes", nullable = false)
+    private int durationMinutes;
+
     @Column(name = "total_seats", nullable = false)
     private int totalSeats;
 
@@ -49,12 +53,13 @@ public class Ride {
     protected Ride() {
     }
 
-    public Ride(Driver driver, String origin, String destination, LocalDateTime departureDateTime, int totalSeats,
-            BigDecimal pricePerSeat) {
+    public Ride(Driver driver, String origin, String destination, LocalDateTime departureDateTime,
+            int durationMinutes, int totalSeats, BigDecimal pricePerSeat) {
         this.driver = driver;
         this.origin = origin;
         this.destination = destination;
         this.departureDateTime = departureDateTime;
+        this.durationMinutes = durationMinutes;
         this.totalSeats = totalSeats;
         this.pricePerSeat = pricePerSeat;
     }
@@ -93,6 +98,14 @@ public class Ride {
 
     public void setDepartureDateTime(LocalDateTime departureDateTime) {
         this.departureDateTime = departureDateTime;
+    }
+
+    public int getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    public void setDurationMinutes(int durationMinutes) {
+        this.durationMinutes = durationMinutes;
     }
 
     public int getTotalSeats() {
