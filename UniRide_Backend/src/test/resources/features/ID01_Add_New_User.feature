@@ -10,10 +10,10 @@ So that I can participate in ride shares with other UniRide users
     And the user is assigned the role <role>
 
     Examples:
-      | first_name | last_name | student_id | email                         | phone_number | password    | role                 | license_number |
-      | Alice      | Tremblay  |  260100001 | alice.tremblay@mail.mcgill.ca | 514-555-0101 | Str0ngPass! | Passenger            |                |
-      | Bob        | Chen      |  260100002 | bob.chen@mail.mcgill.ca       | 514-555-0102 | Str0ngPass! | Driver               | D1234-567890   |
-      | Carla      | Singh     |  260100003 | carla.singh@mcgill.ca         | 514-555-0103 | Str0ngPass! | Passenger and Driver | S9876-543210   |
+      | first_name | last_name | student_id | email                         | phone_number | password    | role                 | license_number  |
+      | Alice      | Tremblay  |  260100001 | alice.tremblay@mail.mcgill.ca | 514-555-0101 | Str0ngPass! | Passenger            |                 |
+      | Bob        | Chen      |  260100002 | bob.chen@mail.mcgill.ca       | 514-555-0102 | Str0ngPass! | Driver               | D1234-567890-12 |
+      | Carla      | Singh     |  260100003 | carla.singh@mcgill.ca         | 514-555-0103 | Str0ngPass! | Passenger and Driver | S9876-543210-12 |
 
   Scenario Outline: Email is not case sensitive (Normal Flow)
     Given no UniRide user exists with email <stored_email>
@@ -64,8 +64,8 @@ So that I can participate in ride shares with other UniRide users
     And no additional UniRide user is created
 
     Examples:
-      | license_number |
-      | D1234-567890   |
+      | license_number  |
+      | D1234-567890-12 |
 
   Scenario Outline: Registration with an invalid email format (Error Flow)
     Given student Hana Ito is a McGill student in good standing
