@@ -29,6 +29,16 @@ class SeatRequestValidatorTest {
     }
 
     @Test
+    void nullStatusIsRejected() {
+        assertThrows(IllegalArgumentException.class, () -> validator.parseStatus(null));
+    }
+
+    @Test
+    void statusWithSurroundingWhitespaceIsTrimmed() {
+        assertEquals(SeatRequestStatus.PENDING, validator.parseStatus("  pending  "));
+    }
+
+    @Test
     void validStatusesAreAccepted() {
         assertEquals(SeatRequestStatus.PENDING, validator.parseStatus("PENDING"));
         assertEquals(SeatRequestStatus.ACCEPTED, validator.parseStatus("accepted"));
@@ -68,5 +78,19 @@ class SeatRequestValidatorTest {
         when(ride.getDriver()).thenReturn(driver);
 
         assertDoesNotThrow(() -> validator.validatePassengerConstraints(passenger, ride, false));
+    }
+
+    @Test
+    void nullPassengerIsRejected() {
+        Ride ride = Mockito.mock(Ride.class);
+        assertThrows(IllegalArgumentException.class,
+                () -> validator.validatePassengerConstraints(null, ride, false));
+    }
+
+    @Test
+    void nullRideIsRejected() {
+        Passenger passenger = Mockito.mock(Passenger.class);
+        assertThrows(IllegalArgumentException.class,
+                () -> validator.validatePassengerConstraints(passenger, null, false));
     }
 }
