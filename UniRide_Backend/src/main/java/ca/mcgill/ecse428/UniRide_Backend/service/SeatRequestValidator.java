@@ -1,7 +1,7 @@
 package ca.mcgill.ecse428.UniRide_Backend.service;
 
-import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequestStatus;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
+import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequestStatus;
 
 public class SeatRequestValidator {
 
@@ -28,6 +28,27 @@ public class SeatRequestValidator {
         }
         if (hasExistingRequest) {
             throw new IllegalArgumentException("Passenger has already requested a seat for this ride");
+        }
+    }
+
+    // TID065: requested_seats constraint
+    public void validateRequestedSeats(int requestedSeats, int totalSeats, int acceptedSeats) {
+        if (requestedSeats <= 0) {
+            throw new IllegalArgumentException("Invalid number of seats requested");
+        }
+        int availableSeats = totalSeats - acceptedSeats;
+        if (requestedSeats > availableSeats) {
+            throw new IllegalArgumentException("Not enough seats available");
+        }
+    }
+
+    // TID067: ride constraints
+    public void validateRide(Ride ride) {
+        if (ride == null) {
+            throw new IllegalArgumentException("Ride does not exist");
+        }
+        if (ride.getStatus() != ca.mcgill.ecse428.UniRide_Backend.model.RideStatus.OPEN) {
+            throw new IllegalArgumentException("Ride is not open for requests");
         }
     }
 }

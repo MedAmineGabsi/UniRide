@@ -93,4 +93,47 @@ class SeatRequestValidatorTest {
         assertThrows(IllegalArgumentException.class,
                 () -> validator.validatePassengerConstraints(passenger, null, false));
     }
+
+    // TID069: requested_seats constraint unit tests
+    @Test
+    void validRequestedSeatsAreAccepted() {
+        assertDoesNotThrow(() -> validator.validateRequestedSeats(2, 4, 1));
+    }
+
+    @Test
+    void zeroOrNegativeSeatsRejected() {
+        IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, 
+                () -> validator.validateRequestedSeats(0, 4, 0));
+        assertEquals("Invalid number of seats requested", e1.getMessage());
+        
+        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, 
+                () -> validator.validateRequestedSeats(-1, 4, 0));
+        assertEquals("Invalid number of seats requested", e2.getMessage());
+    }
+
+    @Test
+    void exceedingAvailableSeatsRejected() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
+                () -> validator.validateRequestedSeats(2, 4, 3));
+        assertEquals("Not enough seats available", e.getMessage());
+    }
+
+    // TID071: ride constraints unit tests
+    @Test
+    void openRideIsAccepted() {
+        Ride ride = Mockito.mock(Ride.class);
+        when(ride.getStatus()).thenReturn(ca.mcgill.ecse428.UniRide_Backend.model.RideStatus.OPEN); 
+        
+        assertDoesNotThrow(() -> validator.validateRide(ride));
+    }
+
+    @Test
+    void nonOpenRideIsRejected() {
+        Ride ride = Mockito.mock(Ride.class);
+        when(ride.getStatus()).thenReturn(ca.mcgill.ecse428.UniRide_Backend.model.RideStatus.FULL); 
+        
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
+                () -> validator.validateRide(ride));
+        assertEquals("Ride is not open for requests", e.getMessage());
+    }
 }
