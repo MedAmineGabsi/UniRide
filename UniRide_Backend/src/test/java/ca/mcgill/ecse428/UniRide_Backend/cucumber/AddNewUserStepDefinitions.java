@@ -242,7 +242,7 @@ public class AddNewUserStepDefinitions {
     @Then("^an? \"(.*)\" message is issued$")
     public void messageIsIssued(String message) throws Exception {
         ErrorResponse error = jsonMapper.readValue(response.getContentAsString(), ErrorResponse.class);
-        assertEquals(message, error.error());
+        assertEquals(message, error.message());
     }
 
     @Then("^no UniRide user is created with email (.+)$")

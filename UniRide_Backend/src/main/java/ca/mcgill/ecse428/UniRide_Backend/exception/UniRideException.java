@@ -2,6 +2,7 @@ package ca.mcgill.ecse428.UniRide_Backend.exception;
 
 import org.springframework.http.HttpStatus;
 
+/** Business error that maps to an HTTP status and a user-facing message. */
 public class UniRideException extends RuntimeException {
 
     private final HttpStatus status;
