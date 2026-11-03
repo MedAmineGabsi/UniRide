@@ -13,7 +13,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /** Unit tests for TID035 (GitHub issue #41). */
-class RideDepartureDateTimeValidatorTest {
+class RideValidatorDepartureDateTimeTest {
 
     // 10:00 in Toronto; the earliest permitted departure is 11:00.
     private final RideValidator validator = new RideValidator(Clock.fixed(
