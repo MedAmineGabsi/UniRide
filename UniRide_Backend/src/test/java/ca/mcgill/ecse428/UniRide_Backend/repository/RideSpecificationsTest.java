@@ -150,7 +150,8 @@ class RideSpecificationsTest {
     }
 
     private Ride ride(Driver driver, String origin, String destination, String departure, RideStatus status) {
-        Ride ride = new Ride(driver, origin, destination, LocalDateTime.parse(departure), 4, new BigDecimal("15.00"));
+        Ride ride = new Ride(driver, origin, destination, LocalDateTime.parse(departure), 120, 4,
+                new BigDecimal("15.00"));
         ride.setStatus(status);
         entityManager.persist(ride);
         return ride;
