@@ -11,7 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /** Unit tests for TID034 (GitHub issue #40). */
-class RidePricePerSeatValidatorTest {
+class RideValidatorPricePerSeatTest {
 
     private final RideValidator validator = new RideValidator(Clock.systemUTC());
 
