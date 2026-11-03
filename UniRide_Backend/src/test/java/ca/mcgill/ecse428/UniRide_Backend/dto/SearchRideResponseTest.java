@@ -44,7 +44,7 @@ class SearchRideResponseTest {
         assertEquals("John Smith", response.driver());
         assertEquals("Montreal", response.origin());
         assertEquals("Ottawa", response.destination());
-        assertEquals("2026-11-15T09:00",
+        assertEquals("2026-11-15 09:00",
                 response.departureDateTime());
         assertEquals(new BigDecimal("20.00"),
                 response.pricePerSeat());
@@ -122,4 +122,3 @@ class SearchRideResponseTest {
                         ride, null, 1));
     }
 }
-

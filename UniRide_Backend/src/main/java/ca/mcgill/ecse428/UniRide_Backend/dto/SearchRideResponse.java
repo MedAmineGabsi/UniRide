@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ca.mcgill.ecse428.UniRide_Backend.model.Person;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
+import ca.mcgill.ecse428.UniRide_Backend.service.RideValidator;
 
 public record SearchRideResponse(
 
@@ -54,10 +55,9 @@ public record SearchRideResponse(
                 driverName.trim(),
                 ride.getOrigin(),
                 ride.getDestination(),
-                ride.getDepartureDateTime().toString(),
+                ride.getDepartureDateTime().format(RideValidator.DEPARTURE_FORMAT),
                 ride.getPricePerSeat(),
                 availableSeats
         );
     }
 }
-
