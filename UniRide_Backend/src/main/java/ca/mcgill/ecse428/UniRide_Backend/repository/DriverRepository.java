@@ -10,6 +10,8 @@ import ca.mcgill.ecse428.UniRide_Backend.model.Driver;
 
 public interface DriverRepository extends JpaRepository<Driver, Integer> {
 
+    boolean existsByLicenseNumber(String licenseNumber);
+
     /** The Driver role assigned to the person with this email, if they have one. */
     @Query("""
             select d from Driver d
