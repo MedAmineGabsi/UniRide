@@ -1,47 +1,54 @@
+// TID075
 package ca.mcgill.ecse428.UniRide_Backend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import ca.mcgill.ecse428.UniRide_Backend.dto.SeatRequestDto;
-import ca.mcgill.ecse428.UniRide_Backend.model.Passenger;
-import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
+import ca.mcgill.ecse428.UniRide_Backend.exception.UniRideException;
 import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequest;
 import ca.mcgill.ecse428.UniRide_Backend.service.SeatRequestService;
-import ca.mcgill.ecse428.UniRide_Backend.repository.PassengerRepository;
-import ca.mcgill.ecse428.UniRide_Backend.repository.RideRepository;
 
 @CrossOrigin(origins = "*")
 @RestController
 public class SeatRequestController {
 
-    @Autowired
-    private SeatRequestService seatRequestService;
+    private static final List<String> EMAIL_CLAIMS = List.of("email", "preferred_username", "upn");
+
+    private final SeatRequestService seatRequestService;
     
-    @Autowired
-    private PassengerRepository passengerRepository;
-    
-    @Autowired
-    private RideRepository rideRepository;
+    public SeatRequestController(SeatRequestService seatRequestService) {
+        this.seatRequestService = seatRequestService;
+    }
 
     @PostMapping("/seat-requests")
-    public ResponseEntity<?> createSeatRequest(@RequestBody SeatRequestDto.Request requestDto) {
-        try {
-            Passenger passenger = passengerRepository.findByPersonEmail(requestDto.getPassengerEmail())
-                    .orElseThrow(() -> new IllegalArgumentException("Passenger not found"));
-            
-            Ride ride = rideRepository.findById(requestDto.getRideId())
-                    .orElseThrow(() -> new IllegalArgumentException("Ride not found"));
+    public ResponseEntity<SeatRequestDto.Response> createSeatRequest(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody SeatRequestDto.Request requestDto) {
+        
+        String passengerEmail = emailOf(jwt);
 
-            SeatRequest newRequest = seatRequestService.createSeatRequest(
-                    passenger, ride, requestDto.getSeatsRequested());
+        SeatRequest newRequest = seatRequestService.createSeatRequest(
+                passengerEmail, requestDto.getRideId(), requestDto.getSeatsRequested());
 
-            return new ResponseEntity<>(new SeatRequestDto.Response(newRequest), HttpStatus.CREATED);
+        return new ResponseEntity<>(new SeatRequestDto.Response(newRequest), HttpStatus.CREATED);
+    }
 
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    private static String emailOf(Jwt jwt) {
+        if (jwt == null) {
+            throw new UniRideException(HttpStatus.UNAUTHORIZED, "Authentication required");
         }
+        for (String claim : EMAIL_CLAIMS) {
+            String value = jwt.getClaimAsString(claim);
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        throw new UniRideException(HttpStatus.UNAUTHORIZED, "Token does not contain an email");
     }
 }

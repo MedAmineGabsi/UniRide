@@ -1,3 +1,4 @@
+// TID075
 package ca.mcgill.ecse428.UniRide_Backend.dto;
 
 import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequest;
@@ -5,12 +6,8 @@ import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequest;
 public class SeatRequestDto {
 
     public static class Request {
-        private String passengerEmail;
         private Integer rideId;
         private int seatsRequested;
-
-        public String getPassengerEmail() { return passengerEmail; }
-        public void setPassengerEmail(String passengerEmail) { this.passengerEmail = passengerEmail; }
 
         public Integer getRideId() { return rideId; }
         public void setRideId(Integer rideId) { this.rideId = rideId; }
@@ -20,11 +17,11 @@ public class SeatRequestDto {
     }
 
     public static class Response {
-        private Integer id;
-        private Integer passengerId;
-        private Integer rideId;
-        private int seatsRequested;
-        private String status;
+        private final Integer id;
+        private final Integer passengerId;
+        private final Integer rideId;
+        private final int seatsRequested;
+        private final String status;
 
         public Response(SeatRequest seatRequest) {
             this.id = seatRequest.getId();

@@ -1,3 +1,4 @@
+// TID069, TID070, TID071, TID072
 package ca.mcgill.ecse428.UniRide_Backend.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -7,7 +8,9 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 
+import ca.mcgill.ecse428.UniRide_Backend.exception.UniRideException;
 import ca.mcgill.ecse428.UniRide_Backend.model.Driver;
 import ca.mcgill.ecse428.UniRide_Backend.model.Passenger;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
@@ -17,20 +20,19 @@ class SeatRequestValidatorTest {
 
     private final SeatRequestValidator validator = new SeatRequestValidator();
 
-    // TID070: status constraint unit tests
     @Test
     void unknownStatusIsRejected() {
-        assertThrows(IllegalArgumentException.class, () -> validator.parseStatus("DONE"));
+        assertThrows(UniRideException.class, () -> validator.parseStatus("DONE"));
     }
 
     @Test
     void blankStatusIsRejected() {
-        assertThrows(IllegalArgumentException.class, () -> validator.parseStatus(" "));
+        assertThrows(UniRideException.class, () -> validator.parseStatus(" "));
     }
 
     @Test
     void nullStatusIsRejected() {
-        assertThrows(IllegalArgumentException.class, () -> validator.parseStatus(null));
+        assertThrows(UniRideException.class, () -> validator.parseStatus(null));
     }
 
     @Test
@@ -46,16 +48,16 @@ class SeatRequestValidatorTest {
         assertEquals(SeatRequestStatus.CANCELLED, validator.parseStatus("CANCELLED"));
     }
 
-    // TID072: passenger constraint unit tests (driver requesting own ride & duplicate request)
     @Test
     void driverCannotRequestOwnRide() {
         Driver driver = Mockito.mock(Driver.class);
         Ride ride = Mockito.mock(Ride.class);
         when(ride.getDriver()).thenReturn(driver);
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        UniRideException e = assertThrows(UniRideException.class,
                 () -> validator.validatePassengerConstraints(driver, ride, false));
         assertEquals("A driver cannot request a seat on their own ride", e.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST, e.getStatus());
     }
 
     @Test
@@ -65,9 +67,10 @@ class SeatRequestValidatorTest {
         Ride ride = Mockito.mock(Ride.class);
         when(ride.getDriver()).thenReturn(driver);
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        UniRideException e = assertThrows(UniRideException.class,
                 () -> validator.validatePassengerConstraints(passenger, ride, true));
-        assertEquals("Passenger has already requested a seat for this ride", e.getMessage());
+        assertEquals("Already requested", e.getMessage());
+        assertEquals(HttpStatus.CONFLICT, e.getStatus());
     }
 
     @Test
@@ -83,18 +86,17 @@ class SeatRequestValidatorTest {
     @Test
     void nullPassengerIsRejected() {
         Ride ride = Mockito.mock(Ride.class);
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(UniRideException.class,
                 () -> validator.validatePassengerConstraints(null, ride, false));
     }
 
     @Test
     void nullRideIsRejected() {
         Passenger passenger = Mockito.mock(Passenger.class);
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(UniRideException.class,
                 () -> validator.validatePassengerConstraints(passenger, null, false));
     }
 
-    // TID069: requested_seats constraint unit tests
     @Test
     void validRequestedSeatsAreAccepted() {
         assertDoesNotThrow(() -> validator.validateRequestedSeats(2, 4, 1));
@@ -102,23 +104,22 @@ class SeatRequestValidatorTest {
 
     @Test
     void zeroOrNegativeSeatsRejected() {
-        IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class, 
+        UniRideException e1 = assertThrows(UniRideException.class, 
                 () -> validator.validateRequestedSeats(0, 4, 0));
         assertEquals("Invalid number of seats requested", e1.getMessage());
         
-        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, 
+        UniRideException e2 = assertThrows(UniRideException.class, 
                 () -> validator.validateRequestedSeats(-1, 4, 0));
         assertEquals("Invalid number of seats requested", e2.getMessage());
     }
 
     @Test
     void exceedingAvailableSeatsRejected() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
+        UniRideException e = assertThrows(UniRideException.class, 
                 () -> validator.validateRequestedSeats(2, 4, 3));
         assertEquals("Not enough seats available", e.getMessage());
     }
 
-    // TID071: ride constraints unit tests
     @Test
     void openRideIsAccepted() {
         Ride ride = Mockito.mock(Ride.class);
@@ -132,7 +133,7 @@ class SeatRequestValidatorTest {
         Ride ride = Mockito.mock(Ride.class);
         when(ride.getStatus()).thenReturn(ca.mcgill.ecse428.UniRide_Backend.model.RideStatus.FULL); 
         
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, 
+        UniRideException e = assertThrows(UniRideException.class, 
                 () -> validator.validateRide(ride));
         assertEquals("Ride is not open for requests", e.getMessage());
     }
