@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import CreateRideScreen from '../src/CreateRideScreen';
+import { API_BASE_URL } from '../src/config';
 
 const token = async () => 'test-token';
 const originalFetch = globalThis.fetch;
@@ -11,6 +12,45 @@ async function fill() {
     ['Passenger seats offered', '3'], ['Price per seat (CAD)', '12.34'],
   ]) await fireEvent.changeText(screen.getByLabelText(label), value);
 }
+
+it('renders the ride creation fields and submit button', async () => {
+  globalThis.fetch = jest.fn();
+  await render(<CreateRideScreen getAccessToken={token} />);
+
+  expect(screen.getByText('Create a ride')).toBeTruthy();
+  for (const label of [
+    'Origin address', 'Destination address', 'Departure date and time',
+    'Duration (minutes)', 'Passenger seats offered', 'Price per seat (CAD)',
+  ]) {
+    expect(screen.getByLabelText(label)).toHaveDisplayValue('');
+  }
+  expect(screen.getByRole('button', { name: 'Create ride' })).toBeEnabled();
+  expect(screen.queryByText('This field is required')).toBeNull();
+  expect(globalThis.fetch).not.toHaveBeenCalled();
+});
+
+it('submits the entered ride details to the backend and displays success', async () => {
+  const fetchMock = jest.fn().mockResolvedValue({ status: 201 });
+  globalThis.fetch = fetchMock;
+  await render(<CreateRideScreen getAccessToken={token} />);
+  await fill();
+  await fireEvent.press(screen.getByRole('button', { name: 'Create ride' }));
+
+  expect(await screen.findByText('Your ride was created.')).toBeTruthy();
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/api/rides`, expect.objectContaining({
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer test-token' },
+  }));
+  expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
+    origin: '123 Main St',
+    destination: '845 Sherbrooke St',
+    departureDateTime: '2028-11-03 11:00',
+    durationMinutes: 60,
+    totalSeats: 3,
+    pricePerSeat: 12.34,
+  });
+});
 
 it('shows field errors and does not submit an empty form', async () => {
   globalThis.fetch = jest.fn();
