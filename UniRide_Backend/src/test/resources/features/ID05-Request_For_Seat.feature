@@ -1,4 +1,4 @@
-@wip
+@ID05
 Feature: Request For Seat
 As a UniRide Passenger
 I would like to request seats on a ride
@@ -20,7 +20,7 @@ So that I can travel to my destination
       |       4 | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      |    2026-11-11 12:00 |           3 |              2 |           15.0 | Open      |
       |       5 | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      |    2026-11-12 09:00 |           4 |              4 |           15.0 | Full      |
       |       6 | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      |    2026-11-12 14:00 |           4 |              0 |           15.0 | Cancelled |
-      |       7 | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      |    2026-10-20 09:00 |           4 |              4 |           15.0 | Finished  |
+      |       7 | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      |    2026-10-20 09:00 |           4 |              4 |           15.0 | Completed |
 
   Scenario Outline: Passenger requests seats on an open ride (Normal Flow)
     When passenger "jef.smith@mail.mcgill.ca" requests <seats_requested> seats on ride <ride_id>
