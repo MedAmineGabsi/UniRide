@@ -22,12 +22,12 @@ public class SeatAvailabilityCalculator {
             throw new IllegalArgumentException("Ride cannot be null");
         }
 
-        int acceptedSeats = 0;
+        long acceptedSeats = 0;
         for (SeatRequest request : seatRequestRepository.findByRideAndStatus(
                 ride, SeatRequestStatus.ACCEPTED)) {
             acceptedSeats += request.getSeatsRequested();
         }
 
-        return ride.getTotalSeats() - acceptedSeats;
+        return (int) Math.max(0, ride.getTotalSeats() - acceptedSeats);
     }
 }

@@ -48,14 +48,16 @@ class SeatAvailabilityCalculatorTest {
     }
 
     @Test
-    void pendingAndRejectedRequestsDoNotReduceSeats() {
+    void overbookedRideHasZeroAvailableSeats() {
         Ride ride = mock(Ride.class);
         when(ride.getTotalSeats()).thenReturn(4);
 
+        SeatRequest accepted = mock(SeatRequest.class);
+        when(accepted.getSeatsRequested()).thenReturn(5);
         when(seatRequestRepository.findByRideAndStatus(
-                ride, SeatRequestStatus.ACCEPTED)).thenReturn(List.of());
+                ride, SeatRequestStatus.ACCEPTED)).thenReturn(List.of(accepted));
 
-        assertEquals(4, calculator.calculateAvailableSeats(ride));
+        assertEquals(0, calculator.calculateAvailableSeats(ride));
     }
 
     @Test

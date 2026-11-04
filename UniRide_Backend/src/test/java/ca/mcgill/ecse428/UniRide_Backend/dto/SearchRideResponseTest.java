@@ -9,15 +9,15 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import ca.mcgill.ecse428.UniRide_Backend.model.Person;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
 
 class SearchRideResponseTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final JsonMapper mapper = JsonMapper.builder().build();
 
     @Test
     void searchResultContainsCorrectRideInformation() {
