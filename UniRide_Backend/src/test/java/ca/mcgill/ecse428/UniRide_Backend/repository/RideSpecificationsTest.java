@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import ca.mcgill.ecse428.UniRide_Backend.TestcontainersConfiguration;
@@ -35,7 +34,8 @@ class RideSpecificationsTest {
     @Autowired
     private EntityManager entityManager;
 
-    private SimpleJpaRepository<Ride, Integer> rides;
+    @Autowired
+    private RideRepository rides;
 
     private Ride ride1;
     private Ride ride2;
@@ -48,8 +48,6 @@ class RideSpecificationsTest {
 
     @BeforeEach
     void createRides() {
-        rides = new SimpleJpaRepository<>(Ride.class, entityManager);
-
         Driver marc = new Driver("QC123456");
         Driver sara = new Driver("QC654321");
         entityManager.persist(marc);
