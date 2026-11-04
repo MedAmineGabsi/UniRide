@@ -7,6 +7,6 @@ import org.springframework.context.annotation.Import;
 
 @CucumberContextConfiguration
 @SpringBootTest
-@Import({ TestcontainersConfiguration.class, TestClockConfiguration.class })
+@Import({ TestcontainersConfiguration.class, TestClockConfiguration.class, LastResponse.class })
 public class CucumberSpringConfig {
 }

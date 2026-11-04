@@ -44,6 +44,8 @@ public class AddNewUserStepDefinitions {
     private PersonRepository personRepository;
     @Autowired
     private PersonService personService;
+    @Autowired
+    private LastResponse lastResponse;
 
     private final JsonMapper jsonMapper = JsonMapper.builder().build();
     private MockMvc mockMvc;
@@ -241,7 +243,7 @@ public class AddNewUserStepDefinitions {
 
     @Then("^an? \"(.*)\" message is issued$")
     public void messageIsIssued(String message) throws Exception {
-        ErrorResponse error = jsonMapper.readValue(response.getContentAsString(), ErrorResponse.class);
+        ErrorResponse error = jsonMapper.readValue(lastResponse.get().getContentAsString(), ErrorResponse.class);
         assertEquals(message, error.message());
     }
 
@@ -266,6 +268,7 @@ public class AddNewUserStepDefinitions {
                 .content(jsonMapper.writeValueAsString(draft.toRequest())))
                 .andReturn()
                 .getResponse();
+        lastResponse.set(response);
     }
 
     /** A valid passenger registration with a unique student ID and an email derived from the name. */
