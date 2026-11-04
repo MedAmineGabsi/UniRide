@@ -17,6 +17,12 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(e.getMessage(), e.getErrors()));
     }
 
+    @ExceptionHandler(InvalidCarDetailsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCarDetails(InvalidCarDetailsException e) {
+        return ResponseEntity.status(e.getStatus())
+                .body(new ErrorResponse(e.getMessage(), e.getErrors()));
+    }
+
     @ExceptionHandler(UniRideException.class)
     public ResponseEntity<ErrorResponse> handleUniRideException(UniRideException e) {
         return ResponseEntity.status(e.getStatus()).body(ErrorResponse.of(e.getMessage()));

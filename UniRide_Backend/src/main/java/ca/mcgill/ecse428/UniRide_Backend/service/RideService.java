@@ -14,6 +14,7 @@ import ca.mcgill.ecse428.UniRide_Backend.exception.InvalidRideDetailsException;
 import ca.mcgill.ecse428.UniRide_Backend.exception.UniRideException;
 import ca.mcgill.ecse428.UniRide_Backend.model.Driver;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
+import ca.mcgill.ecse428.UniRide_Backend.repository.CarRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.DriverRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.PersonRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.RideRepository;
@@ -27,18 +28,23 @@ public class RideService {
     private final RideRepository rideRepository;
     private final PersonRepository personRepository;
     private final DriverRepository driverRepository;
+    private final CarRepository carRepository;
     private final RideValidator rideValidator;
 
     public RideService(RideRepository rideRepository, PersonRepository personRepository,
-            DriverRepository driverRepository, RideValidator rideValidator) {
+            DriverRepository driverRepository, CarRepository carRepository, RideValidator rideValidator) {
         this.rideRepository = rideRepository;
         this.personRepository = personRepository;
         this.driverRepository = driverRepository;
+        this.carRepository = carRepository;
         this.rideValidator = rideValidator;
     }
 
     /**
      * Creates a ride listing for the user with this email.
+     *
+     * <p>If the driver has registered a car, the ride cannot offer more seats than the car's
+     * passenger seats (its seat capacity minus the driver's seat).
      *
      * @throws UniRideException            404 if the user does not exist, 403 if they are not a driver
      * @throws InvalidRideDetailsException 400 "Invalid Ride Details" if any field breaks a constraint;
@@ -55,7 +61,7 @@ public class RideService {
         if (request == null) {
             throw new InvalidRideDetailsException(Map.of("request", "Ride details are required"));
         }
-        Map<String, String> errors = rideValidator.validate(request, driver.getCarSeats());
+        Map<String, String> errors = rideValidator.validate(request, passengerSeatsInCarOf(driver));
         if (!errors.isEmpty()) {
             throw new InvalidRideDetailsException(errors);
         }
@@ -72,5 +78,15 @@ public class RideService {
                 request.totalSeats(),
                 price);
         return rideRepository.save(ride);
+    }
+
+    /**
+     * Passenger seats in the driver's car: its seat capacity minus the driver's own seat.
+     * Null if the driver has not registered a car, in which case no car limit applies.
+     */
+    private Integer passengerSeatsInCarOf(Driver driver) {
+        return carRepository.findByDriverId(driver.getId())
+                .map(car -> car.getSeatCapacity() - 1)
+                .orElse(null);
     }
 }

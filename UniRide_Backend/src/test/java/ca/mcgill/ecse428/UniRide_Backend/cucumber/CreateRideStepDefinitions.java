@@ -162,7 +162,7 @@ public class CreateRideStepDefinitions {
     // ------------------------------------------------------------------ helpers
 
     private void clearDatabase() {
-        jdbcTemplate.execute("TRUNCATE TABLE seat_request, ride, person_role_assignment, driver, passenger, "
+        jdbcTemplate.execute("TRUNCATE TABLE seat_request, ride, car, person_role_assignment, driver, passenger, "
                 + "person_role, person RESTART IDENTITY CASCADE");
     }
 
