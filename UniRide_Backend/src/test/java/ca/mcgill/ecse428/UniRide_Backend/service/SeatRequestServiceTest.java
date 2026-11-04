@@ -3,6 +3,7 @@ package ca.mcgill.ecse428.UniRide_Backend.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -22,10 +23,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
 import ca.mcgill.ecse428.UniRide_Backend.exception.UniRideException;
+import ca.mcgill.ecse428.UniRide_Backend.model.Driver;
 import ca.mcgill.ecse428.UniRide_Backend.model.Passenger;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
 import ca.mcgill.ecse428.UniRide_Backend.model.RideStatus;
 import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequest;
+import ca.mcgill.ecse428.UniRide_Backend.repository.DriverRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.PassengerRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.RideRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.SeatRequestRepository;
@@ -42,6 +45,7 @@ class SeatRequestServiceTest {
     @Mock private SeatRequestRepository seatRequests;
     @Mock private PassengerRepository passengers;
     @Mock private RideRepository rides;
+    @Mock private DriverRepository drivers;
     @Mock private SeatAvailabilityCalculator seatAvailability;
     @Mock private Passenger passenger;
     @Mock private Ride ride;
@@ -50,7 +54,7 @@ class SeatRequestServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new SeatRequestService(seatRequests, passengers, rides, seatAvailability, CLOCK);
+        service = new SeatRequestService(seatRequests, passengers, rides, drivers, seatAvailability, CLOCK);
     }
 
     @Test
@@ -59,7 +63,7 @@ class SeatRequestServiceTest {
                 () -> service.createSeatRequest(EMAIL, null, 1));
         assertEquals(HttpStatus.BAD_REQUEST, error.getStatus());
         assertEquals(SeatRequestService.RIDE_ID_REQUIRED_MESSAGE, error.getMessage());
-        verifyNoInteractions(passengers, rides, seatRequests, seatAvailability);
+        verifyNoInteractions(passengers, rides, drivers, seatRequests, seatAvailability);
     }
 
     @Test
@@ -93,6 +97,39 @@ class SeatRequestServiceTest {
         SeatRequest saved = service.createSeatRequest(EMAIL, 1, 1);
         assertEquals(1, saved.getSeatsRequested());
         verify(seatRequests).save(any(SeatRequest.class));
+    }
+
+    @Test
+    void driverCannotRequestASeatOnTheirOwnRide() {
+        when(passengers.findByPersonEmail(EMAIL)).thenReturn(Optional.of(passenger));
+        when(rides.findById(1)).thenReturn(Optional.of(ride));
+        Driver rideDriver = mock(Driver.class);
+        when(rideDriver.getId()).thenReturn(7);
+        when(ride.getDriver()).thenReturn(rideDriver);
+        Driver requesterAsDriver = mock(Driver.class);
+        when(requesterAsDriver.getId()).thenReturn(7);
+        when(drivers.findByPersonEmail(EMAIL)).thenReturn(Optional.of(requesterAsDriver));
+
+        UniRideException error = assertThrows(UniRideException.class,
+                () -> service.createSeatRequest(EMAIL, 1, 1));
+        assertEquals(HttpStatus.BAD_REQUEST, error.getStatus());
+        assertEquals(SeatRequestValidator.OWN_RIDE_MESSAGE, error.getMessage());
+        verify(seatRequests, never()).save(any());
+    }
+
+    @Test
+    void driverCanRequestASeatOnSomeoneElsesRide() {
+        openRideDepartingAt(LocalDateTime.of(2026, 11, 10, 9, 0));
+        Driver rideDriver = mock(Driver.class);
+        when(rideDriver.getId()).thenReturn(7);
+        when(ride.getDriver()).thenReturn(rideDriver);
+        Driver requesterAsDriver = mock(Driver.class);
+        when(requesterAsDriver.getId()).thenReturn(8);
+        when(drivers.findByPersonEmail(EMAIL)).thenReturn(Optional.of(requesterAsDriver));
+        when(seatAvailability.calculateAvailableSeats(ride)).thenReturn(4);
+        when(seatRequests.save(any(SeatRequest.class))).thenAnswer(call -> call.getArgument(0));
+
+        assertEquals(1, service.createSeatRequest(EMAIL, 1, 1).getSeatsRequested());
     }
 
     private void openRideDepartingAt(LocalDateTime departure) {

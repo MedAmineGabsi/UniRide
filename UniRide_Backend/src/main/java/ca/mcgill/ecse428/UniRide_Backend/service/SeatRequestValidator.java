@@ -12,6 +12,7 @@ import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequestStatus;
 public class SeatRequestValidator {
 
     public static final String RIDE_ALREADY_DEPARTED_MESSAGE = "Ride has already departed";
+    public static final String OWN_RIDE_MESSAGE = "A driver cannot request a seat on their own ride";
 
     public SeatRequestStatus parseStatus(String status) {
         if (status == null || status.isBlank()) {
@@ -30,7 +31,7 @@ public class SeatRequestValidator {
         }
         Object driver = ride.getDriver();
         if (driver != null && driver.equals(passenger)) {
-            throw new UniRideException(HttpStatus.BAD_REQUEST, "A driver cannot request a seat on their own ride");
+            throw new UniRideException(HttpStatus.BAD_REQUEST, OWN_RIDE_MESSAGE);
         }
         if (hasExistingRequest) {
             throw new UniRideException(HttpStatus.CONFLICT, "Already requested");
@@ -64,6 +65,16 @@ public class SeatRequestValidator {
     public void validateNotDeparted(Ride ride, LocalDateTime now) {
         if (!ride.getDepartureDateTime().isAfter(now)) {
             throw new UniRideException(HttpStatus.BAD_REQUEST, RIDE_ALREADY_DEPARTED_MESSAGE);
+        }
+    }
+
+    /**
+     * A driver cannot request a seat on a ride they are driving. The caller decides whether the
+     * requester is the ride's driver, by comparing the person behind both roles.
+     */
+    public void validateNotOwnRide(boolean requesterDrivesTheRide) {
+        if (requesterDrivesTheRide) {
+            throw new UniRideException(HttpStatus.BAD_REQUEST, OWN_RIDE_MESSAGE);
         }
     }
 }
