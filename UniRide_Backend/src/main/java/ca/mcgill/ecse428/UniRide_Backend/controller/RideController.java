@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +44,12 @@ public class RideController {
         Ride ride = rideService.createRide(emailOf(jwt), request);
         return ResponseEntity.created(URI.create("/api/rides/" + ride.getId()))
                 .body(RideResponse.from(ride));
+    }
+
+    @PostMapping("/{rideId}/finish")
+    public ResponseEntity<Void> finishRide(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer rideId) {
+        rideService.finishRide(emailOf(jwt), rideId);
+        return ResponseEntity.noContent().build();
     }
 
     private static String emailOf(Jwt jwt) {
