@@ -54,6 +54,11 @@ class ApiSecurityAndErrorHandlingTest {
     }
 
     @Test
+    void cancellingARideRequiresSignIn() throws Exception {
+        mockMvc.perform(post("/api/rides/1/cancel")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void requestingASeatRequiresSignIn() throws Exception {
         mockMvc.perform(post("/seat-requests").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"rideId\": 1, \"seatsRequested\": 1}"))
