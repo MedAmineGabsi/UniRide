@@ -1,4 +1,4 @@
-@ID20 @wip
+@ID20
 Feature: Finish a Ride
   As a UniRide driver
   I want to mark my ride as finished
@@ -24,33 +24,35 @@ Feature: Finish a Ride
 
   Scenario: The driver finishes their own ride
     When driver "marc.lavoie@mail.mcgill.ca" attempts to finish ride 1
-    Then ride 1 has status "Completed"
+    Then the finish-ride response status is 204
+    And ride 1 has status "Completed"
 
   Scenario: The driver finishes an open ride at its scheduled arrival
     When driver "marc.lavoie@mail.mcgill.ca" attempts to finish ride 3
-    Then ride 3 has status "Completed"
+    Then the finish-ride response status is 204
+    And ride 3 has status "Completed"
 
   Scenario: The driver cannot finish a ride before its scheduled arrival
     When driver "marc.lavoie@mail.mcgill.ca" attempts to finish ride 4
-    Then the request to finish the ride is rejected
+    Then the finish-ride response status is 409
     And ride 4 has status "Open"
 
   Scenario: Another driver cannot finish the ride
     When driver "sara.nguyen@mail.mcgill.ca" attempts to finish ride 1
-    Then the request to finish the ride is rejected
+    Then the finish-ride response status is 403
     And ride 1 has status "Full"
 
   Scenario: The driver cannot finish a cancelled ride
     When driver "marc.lavoie@mail.mcgill.ca" attempts to finish ride 2
-    Then the request to finish the ride is rejected
+    Then the finish-ride response status is 409
     And ride 2 has status "Cancelled"
 
   Scenario: The driver cannot finish an already completed ride
     When driver "marc.lavoie@mail.mcgill.ca" attempts to finish ride 5
-    Then the request to finish the ride is rejected
+    Then the finish-ride response status is 409
     And ride 5 has status "Completed"
 
   Scenario: The driver tries to finish a ride that does not exist
     Given ride 99 does not exist
     When driver "marc.lavoie@mail.mcgill.ca" attempts to finish ride 99
-    Then the request to finish the ride is rejected because the ride was not found
+    Then the finish-ride response status is 404
