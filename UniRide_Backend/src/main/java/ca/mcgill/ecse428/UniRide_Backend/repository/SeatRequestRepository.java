@@ -1,5 +1,6 @@
 package ca.mcgill.ecse428.UniRide_Backend.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
@@ -15,4 +16,6 @@ public interface SeatRequestRepository extends CrudRepository<SeatRequest, Integ
     boolean existsByPassengerAndRide(Passenger passenger, Ride ride);
 
     List<SeatRequest> findByRideAndStatus(Ride ride, SeatRequestStatus status);
+
+    List<SeatRequest> findByRideAndStatusIn(Ride ride, Collection<SeatRequestStatus> statuses);
 }   

@@ -2,6 +2,7 @@ package ca.mcgill.ecse428.UniRide_Backend.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import ca.mcgill.ecse428.UniRide_Backend.exception.InvalidRideDetailsException;
 import ca.mcgill.ecse428.UniRide_Backend.exception.UniRideException;
 import ca.mcgill.ecse428.UniRide_Backend.model.Driver;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
+import ca.mcgill.ecse428.UniRide_Backend.model.RideStatus;
 import ca.mcgill.ecse428.UniRide_Backend.repository.CarRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.DriverRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.PersonRepository;
@@ -30,14 +32,16 @@ public class RideService {
     private final DriverRepository driverRepository;
     private final CarRepository carRepository;
     private final RideValidator rideValidator;
+    private final Clock clock;
 
     public RideService(RideRepository rideRepository, PersonRepository personRepository,
-            DriverRepository driverRepository, CarRepository carRepository, RideValidator rideValidator) {
+            DriverRepository driverRepository, CarRepository carRepository, RideValidator rideValidator, Clock clock) {
         this.rideRepository = rideRepository;
         this.personRepository = personRepository;
         this.driverRepository = driverRepository;
         this.carRepository = carRepository;
         this.rideValidator = rideValidator;
+        this.clock = clock;
     }
 
     /**
@@ -78,6 +82,25 @@ public class RideService {
                 request.totalSeats(),
                 price);
         return rideRepository.save(ride);
+    }
+
+    @Transactional
+    public void finishRide(String driverEmail, Integer rideId) {
+        Driver driver = driverRepository.findByPersonEmail(driverEmail.trim())
+                .orElseThrow(() -> new UniRideException(HttpStatus.FORBIDDEN, "Only the ride owner can finish it"));
+        Ride ride = rideRepository.findByIdForUpdate(rideId)
+                .orElseThrow(() -> new UniRideException(HttpStatus.NOT_FOUND, "Ride not found"));
+        if (!driver.getId().equals(ride.getDriver().getId())) {
+            throw new UniRideException(HttpStatus.FORBIDDEN, "Only the ride owner can finish it");
+        }
+        if (ride.getStatus() != RideStatus.OPEN && ride.getStatus() != RideStatus.FULL) {
+            throw new UniRideException(HttpStatus.CONFLICT, "Only open or full rides can be finished");
+        }
+        LocalDateTime arrival = ride.getDepartureDateTime().plusMinutes(ride.getDurationMinutes());
+        if (LocalDateTime.now(clock).isBefore(arrival)) {
+            throw new UniRideException(HttpStatus.CONFLICT, "Ride cannot be finished before scheduled arrival");
+        }
+        ride.setStatus(RideStatus.COMPLETED);
     }
 
     /**
