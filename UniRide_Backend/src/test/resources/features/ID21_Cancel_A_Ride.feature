@@ -1,4 +1,4 @@
-@ID21 @wip
+@ID21
 Feature: Cancel a Ride
   As a UniRide driver
   I want to cancel a ride I posted
