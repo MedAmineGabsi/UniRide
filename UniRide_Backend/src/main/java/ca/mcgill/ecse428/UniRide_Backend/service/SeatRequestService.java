@@ -12,6 +12,7 @@ import ca.mcgill.ecse428.UniRide_Backend.exception.UniRideException;
 import ca.mcgill.ecse428.UniRide_Backend.model.Passenger;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
 import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequest;
+import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequestStatus;
 import ca.mcgill.ecse428.UniRide_Backend.repository.DriverRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.PassengerRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.RideRepository;
@@ -78,5 +79,22 @@ public class SeatRequestService {
         return driverRepository.findByPersonEmail(email)
                 .map(driver -> driver.getId().equals(rideDriverId))
                 .orElse(false);
+    }
+
+    @Transactional
+    public SeatRequest respondToSeatRequest(Integer requestId, String driverEmail, SeatRequestStatus newStatus) {
+        SeatRequest seatRequest = seatRequestRepository.findById(requestId)
+                .orElseThrow(() -> new UniRideException(HttpStatus.NOT_FOUND, "Seat request not found"));
+        Ride ride = seatRequest.getRide();
+
+        validator.validateDriverAuthorization(drivesTheRide(driverEmail, ride));
+        validator.validatePendingStatus(seatRequest.getStatus());
+
+        if (newStatus == SeatRequestStatus.ACCEPTED) {
+            validator.validateRequestedSeats(seatRequest.getSeatsRequested(), seatAvailabilityCalculator.calculateAvailableSeats(ride));
+        }
+
+        seatRequest.setStatus(newStatus);
+        return seatRequestRepository.save(seatRequest);
     }
 }

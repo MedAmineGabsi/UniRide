@@ -77,4 +77,15 @@ public class SeatRequestValidator {
             throw new UniRideException(HttpStatus.BAD_REQUEST, OWN_RIDE_MESSAGE);
         }
     }
+    public void validateDriverAuthorization(boolean requesterDrivesTheRide) {
+        if (!requesterDrivesTheRide) {
+            throw new UniRideException(HttpStatus.UNAUTHORIZED, "Unauthorized: Only the driver of this ride can respond to requests");
+        }
+    }
+
+    public void validatePendingStatus(SeatRequestStatus currentStatus) {
+        if (currentStatus != SeatRequestStatus.PENDING) {
+            throw new UniRideException(HttpStatus.BAD_REQUEST, "Seat request must be PENDING to update status");
+        }
+    }
 }
