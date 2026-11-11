@@ -5,6 +5,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -99,6 +100,31 @@ class ApiSecurityAndErrorHandlingTest {
                 .contentType(MediaType.APPLICATION_JSON).content("{\"seatsRequested\": 1}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Ride id is required"));
+    }
+
+    @Test
+    void respondingToSeatRequestRequiresSignIn() throws Exception {
+        mockMvc.perform(patch("/seat-requests/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"status\": \"ACCEPTED\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void unknownUserCannotRespondToSeatRequest() throws Exception {
+        mockMvc.perform(patch("/seat-requests/1").with(signedInAs(UNKNOWN_EMAIL))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"status\": \"ACCEPTED\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Seat request not found"));
+    }
+
+    @Test
+    void malformedRespondBodyIsABadRequest() throws Exception {
+        mockMvc.perform(patch("/seat-requests/1").with(signedInAs(UNKNOWN_EMAIL))
+                .contentType(MediaType.APPLICATION_JSON).content("{ not json"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Malformed request body"));
     }
 
     private static org.springframework.test.web.servlet.request.RequestPostProcessor signedInAs(String email) {
