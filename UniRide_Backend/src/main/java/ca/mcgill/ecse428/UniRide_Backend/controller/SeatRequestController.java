@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import ca.mcgill.ecse428.UniRide_Backend.dto.SeatRequestDto;
 import ca.mcgill.ecse428.UniRide_Backend.exception.UniRideException;
 import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequest;
+import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequestStatus;
 import ca.mcgill.ecse428.UniRide_Backend.service.SeatRequestService;
 
 @CrossOrigin(origins = "*")
@@ -50,5 +51,19 @@ public class SeatRequestController {
             }
         }
         throw new UniRideException(HttpStatus.UNAUTHORIZED, "Token does not contain an email");
+    }
+
+    @PatchMapping("/seat-requests/{id}")
+    public ResponseEntity<SeatRequestDto.Response> respondToSeatRequest(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Integer id,
+            @RequestBody SeatRequestDto.Request requestDto) {
+        
+        String driverEmail = emailOf(jwt);
+        SeatRequestStatus newStatus = SeatRequestStatus.valueOf(requestDto.getStatus().toUpperCase());
+
+        SeatRequest updatedRequest = seatRequestService.respondToSeatRequest(id, driverEmail, newStatus);
+
+        return new ResponseEntity<>(new SeatRequestDto.Response(updatedRequest), HttpStatus.OK);
     }
 }

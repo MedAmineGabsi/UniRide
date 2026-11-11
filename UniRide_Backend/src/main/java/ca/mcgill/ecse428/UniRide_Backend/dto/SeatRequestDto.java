@@ -8,12 +8,16 @@ public class SeatRequestDto {
     public static class Request {
         private Integer rideId;
         private int seatsRequested;
+        private String status; // Added for ID07
 
         public Integer getRideId() { return rideId; }
         public void setRideId(Integer rideId) { this.rideId = rideId; }
 
         public int getSeatsRequested() { return seatsRequested; }
         public void setSeatsRequested(int seatsRequested) { this.seatsRequested = seatsRequested; }
+
+        public String getStatus() { return status; } // Added for ID07
+        public void setStatus(String status) { this.status = status; } // Added for ID07
     }
 
     public static class Response {

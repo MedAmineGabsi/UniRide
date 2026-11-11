@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -198,6 +199,38 @@ public class SeatRequestStepDefinitions {
     @Then("no additional seat request is created")
     public void noAdditionalSeatRequestIsCreated() throws Exception {
         assertNoSeatRequestCreated();
+    }
+
+    @When("driver {string} responds to the seat request for passenger {string} on ride {int} with {string}")
+    public void driverRespondsToSeatRequest(String driverEmail, String passengerEmail, int rideId, String newStatus) throws Exception {
+        // Find the specific request ID
+        Integer requestId = jdbcTemplate.queryForObject("""
+                SELECT s.id
+                FROM seat_request s
+                JOIN person_role_assignment a ON a.role_id = s.passenger_id
+                JOIN person p ON p.id = a.person_id
+                WHERE lower(p.email) = lower(?) AND s.ride_id = ?
+                """, Integer.class, passengerEmail, databaseIdOf(rideId));
+
+        lastResponse.set(mockMvc.perform(patch(SEAT_REQUESTS_URL + "/" + requestId)
+                .with(jwt().jwt(token -> token.claim("email", driverEmail)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"status\": \"" + newStatus.toUpperCase(Locale.ROOT) + "\"}"))
+                .andReturn()
+                .getResponse());
+    }
+
+    @Then("the seat request for passenger {string} on ride {int} has status {string}")
+    public void seatRequestHasStatus(String passengerEmail, int rideId, String expectedStatus) {
+        String actualStatus = jdbcTemplate.queryForObject("""
+                SELECT s.status
+                FROM seat_request s
+                JOIN person_role_assignment a ON a.role_id = s.passenger_id
+                JOIN person p ON p.id = a.person_id
+                WHERE lower(p.email) = lower(?) AND s.ride_id = ?
+                """, String.class, passengerEmail, databaseIdOf(rideId));
+        
+        assertEquals(expectedStatus.trim().toUpperCase(Locale.ROOT), actualStatus);
     }
 
     // ------------------------------------------------------------------ helpers
