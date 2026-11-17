@@ -2,6 +2,7 @@
 package ca.mcgill.ecse428.UniRide_Backend.service;
 
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 import org.springframework.http.HttpStatus;
 
@@ -19,7 +20,7 @@ public class SeatRequestValidator {
             throw new UniRideException(HttpStatus.BAD_REQUEST, "status is required");
         }
         try {
-            return SeatRequestStatus.valueOf(status.trim().toUpperCase());
+            return SeatRequestStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             throw new UniRideException(HttpStatus.BAD_REQUEST, "Invalid status: " + status);
         }
@@ -79,7 +80,13 @@ public class SeatRequestValidator {
     }
     public void validateDriverAuthorization(boolean requesterDrivesTheRide) {
         if (!requesterDrivesTheRide) {
-            throw new UniRideException(HttpStatus.UNAUTHORIZED, "Unauthorized: Only the driver of this ride can respond to requests");
+            throw new UniRideException(HttpStatus.FORBIDDEN, "Unauthorized: Only the driver of this ride can respond to requests");
+        }
+    }
+
+    public void validateResponseStatus(SeatRequestStatus status) {
+        if (status != SeatRequestStatus.ACCEPTED && status != SeatRequestStatus.REJECTED) {
+            throw new UniRideException(HttpStatus.BAD_REQUEST, "Only ACCEPTED or REJECTED statuses are allowed");
         }
     }
 

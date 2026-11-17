@@ -28,6 +28,7 @@ import ca.mcgill.ecse428.UniRide_Backend.model.Passenger;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
 import ca.mcgill.ecse428.UniRide_Backend.model.RideStatus;
 import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequest;
+import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequestStatus;
 import ca.mcgill.ecse428.UniRide_Backend.repository.DriverRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.PassengerRepository;
 import ca.mcgill.ecse428.UniRide_Backend.repository.RideRepository;
@@ -130,6 +131,86 @@ class SeatRequestServiceTest {
         when(seatRequests.save(any(SeatRequest.class))).thenAnswer(call -> call.getArgument(0));
 
         assertEquals(1, service.createSeatRequest(EMAIL, 1, 1).getSeatsRequested());
+    }
+
+    @Test
+    void acceptingLastAvailableSeatMarksRideFull() {
+        SeatRequest request = pendingRequestOnRide(ride);
+        when(ride.getStatus()).thenReturn(RideStatus.OPEN);
+        when(ride.getDepartureDateTime()).thenReturn(LocalDateTime.of(2026, 11, 10, 9, 0));
+        when(request.getSeatsRequested()).thenReturn(1);
+        when(seatAvailability.calculateAvailableSeats(ride)).thenReturn(1);
+        when(seatRequests.save(request)).thenReturn(request);
+
+        service.respondToSeatRequest(1, EMAIL, "ACCEPTED");
+
+        verify(ride).setStatus(RideStatus.FULL);
+        verify(rides).save(ride);
+        verify(request).setStatus(SeatRequestStatus.ACCEPTED);
+    }
+
+    @Test
+    void rejectingRequestOnFullRideDoesNotRequireAvailableSeats() {
+        SeatRequest request = pendingRequestOnRide(ride);
+        when(seatRequests.save(request)).thenReturn(request);
+
+        service.respondToSeatRequest(1, EMAIL, "REJECTED");
+
+        verify(request).setStatus(SeatRequestStatus.REJECTED);
+        verify(seatAvailability, never()).calculateAvailableSeats(ride);
+        verify(rides, never()).save(ride);
+    }
+
+    @Test
+    void acceptingRequestOnCancelledRideIsRejectedWithoutUpdatingRequest() {
+        SeatRequest request = pendingRequestOnRide(ride);
+        when(ride.getStatus()).thenReturn(RideStatus.CANCELLED);
+
+        UniRideException error = assertThrows(UniRideException.class,
+                () -> service.respondToSeatRequest(1, EMAIL, "ACCEPTED"));
+
+        assertEquals(HttpStatus.BAD_REQUEST, error.getStatus());
+        assertEquals("Ride is not open for requests", error.getMessage());
+        verify(seatRequests, never()).save(request);
+        verify(seatAvailability, never()).calculateAvailableSeats(ride);
+    }
+
+    @Test
+    void acceptingRequestOnDepartedRideIsRejectedWithoutUpdatingRequest() {
+        SeatRequest request = pendingRequestOnRide(ride);
+        when(ride.getStatus()).thenReturn(RideStatus.OPEN);
+        when(ride.getDepartureDateTime()).thenReturn(LocalDateTime.of(2026, 11, 3, 9, 30));
+
+        UniRideException error = assertThrows(UniRideException.class,
+                () -> service.respondToSeatRequest(1, EMAIL, "ACCEPTED"));
+
+        assertEquals(SeatRequestValidator.RIDE_ALREADY_DEPARTED_MESSAGE, error.getMessage());
+        verify(seatRequests, never()).save(request);
+        verify(seatAvailability, never()).calculateAvailableSeats(ride);
+    }
+
+    @Test
+    void driverCannotSetRequestToPending() {
+        UniRideException error = assertThrows(UniRideException.class,
+                () -> service.respondToSeatRequest(1, EMAIL, "PENDING"));
+
+        assertEquals(HttpStatus.BAD_REQUEST, error.getStatus());
+        assertEquals("Only ACCEPTED or REJECTED statuses are allowed", error.getMessage());
+        verifyNoInteractions(seatRequests, rides, drivers, seatAvailability);
+    }
+
+    private SeatRequest pendingRequestOnRide(Ride rideForRequest) {
+        SeatRequest request = mock(SeatRequest.class);
+        Driver rideDriver = mock(Driver.class);
+        Driver requester = mock(Driver.class);
+        when(rideDriver.getId()).thenReturn(7);
+        when(requester.getId()).thenReturn(7);
+        when(rideForRequest.getDriver()).thenReturn(rideDriver);
+        when(drivers.findByPersonEmail(EMAIL)).thenReturn(Optional.of(requester));
+        when(seatRequests.findById(1)).thenReturn(Optional.of(request));
+        when(request.getRide()).thenReturn(rideForRequest);
+        when(request.getStatus()).thenReturn(SeatRequestStatus.PENDING);
+        return request;
     }
 
     private void openRideDepartingAt(LocalDateTime departure) {

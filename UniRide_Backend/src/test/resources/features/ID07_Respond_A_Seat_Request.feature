@@ -18,6 +18,8 @@ Feature: Respond to Seat Request
       | ride_id | driver                     | origin   | destination | departure_date_time | total_seats | accepted_seats | price_per_seat | status    |
       |       1 | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      |    2026-11-10 09:00 |           4 |              1 |           15.0 | Open      |
       |       2 | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      |    2026-11-10 14:00 |           4 |              4 |           15.0 | Full      |
+      |       3 | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      |    2026-11-11 09:00 |           4 |              3 |           15.0 | Open      |
+      |       4 | marc.lavoie@mail.mcgill.ca | Montreal | Ottawa      |    2026-11-12 09:00 |           4 |              0 |           15.0 | Cancelled |
 
   Scenario Outline: Driver successfully responds to a seat request (Normal Flow)
     Given passenger "jef.smith@mail.mcgill.ca" already has a seat request on ride <ride_id> with status "Pending"
@@ -48,6 +50,34 @@ Feature: Respond to Seat Request
     Examples:
       | ride_id | driver_email               |
       |       2 | marc.lavoie@mail.mcgill.ca |
+
+  Scenario: Driver can reject a request when the ride is full (Alternate Flow)
+    Given passenger "alice.wong@mail.mcgill.ca" already has a seat request on ride 2 with status "Pending"
+    When driver "marc.lavoie@mail.mcgill.ca" responds to the seat request for passenger "alice.wong@mail.mcgill.ca" on ride 2 with "Rejected"
+    Then the seat request for passenger "alice.wong@mail.mcgill.ca" on ride 2 has status "Rejected"
+
+  Scenario: Accepting the last available seat makes the ride full (Alternate Flow)
+    Given passenger "jef.smith@mail.mcgill.ca" already has a seat request on ride 3 with status "Pending"
+    When driver "marc.lavoie@mail.mcgill.ca" responds to the seat request for passenger "jef.smith@mail.mcgill.ca" on ride 3 with "Accepted"
+    Then the seat request for passenger "jef.smith@mail.mcgill.ca" on ride 3 has status "Accepted"
+    And ride 3 has status "Full"
+
+  Scenario: Driver cannot accept a request on a cancelled ride (Error Flow)
+    Given passenger "alice.wong@mail.mcgill.ca" already has a seat request on ride 4 with status "Pending"
+    When driver "marc.lavoie@mail.mcgill.ca" responds to the seat request for passenger "alice.wong@mail.mcgill.ca" on ride 4 with "Accepted"
+    Then a "Ride is not open for requests" message is issued
+    And the seat request for passenger "alice.wong@mail.mcgill.ca" on ride 4 has status "Pending"
+
+  Scenario Outline: Driver cannot set a seat request to a status other than Accepted or Rejected (Error Flow)
+    Given passenger "jef.smith@mail.mcgill.ca" already has a seat request on ride 1 with status "Pending"
+    When driver "marc.lavoie@mail.mcgill.ca" responds to the seat request for passenger "jef.smith@mail.mcgill.ca" on ride 1 with "<new_status>"
+    Then a "Only ACCEPTED or REJECTED statuses are allowed" message is issued
+    And the seat request for passenger "jef.smith@mail.mcgill.ca" on ride 1 has status "Pending"
+
+    Examples:
+      | new_status |
+      | Pending    |
+      | Cancelled  |
 
   Scenario Outline: Driver attempts to respond to a request that is not PENDING (Error Flow)
     Given passenger "jef.smith@mail.mcgill.ca" already has a seat request on ride <ride_id> with status "<current_status>"

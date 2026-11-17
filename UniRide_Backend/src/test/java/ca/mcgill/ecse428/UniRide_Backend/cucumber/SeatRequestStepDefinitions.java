@@ -233,6 +233,12 @@ public class SeatRequestStepDefinitions {
         assertEquals(expectedStatus.trim().toUpperCase(Locale.ROOT), actualStatus);
     }
 
+    @Then("ride {int} has status {string}")
+    public void rideHasStatus(int rideId, String expectedStatus) {
+        Ride ride = rideRepository.findById(databaseIdOf(rideId)).orElseThrow();
+        assertEquals(RideStatus.valueOf(expectedStatus.trim().toUpperCase(Locale.ROOT)), ride.getStatus());
+    }
+
     // ------------------------------------------------------------------ helpers
 
     private void assertNoSeatRequestCreated() throws Exception {
