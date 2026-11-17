@@ -61,3 +61,19 @@ submission, duplicate submission prevention, and the actual fetch request contra
 API tests cover authentication, backend field errors, HTTP failures and timeout.
 An authenticated device-to-backend check still requires a session provider and a
 running backend. No sign-in flow is included in this change.
+
+### Respond to seat requests (ID07 / TID130–TID134)
+
+The **Seat requests** tab renders the pending request summaries supplied to `App`
+through its `seatRequests` prop. Each pending request can be accepted or rejected;
+the mobile API client sends `PATCH /seat-requests/{id}` with an authenticated
+`ACCEPTED` or `REJECTED` status. Successful responses display a confirmation toast;
+validation and authentication errors are announced accessibly, and the screen can
+invoke the app's sign-in callback when authentication is required.
+
+The current backend does not expose a mobile request-list endpoint, so this UI
+expects its parent to provide request summaries; it does not invent or hard-code
+ride requests. Pass the same `getAccessToken` provider used by ride creation.
+Tests cover request display, acceptance/rejection, confirmation and error flows,
+authentication, duplicate-submit prevention, and the PATCH request contract.
+A live device-to-backend check requires a session provider and request data source.
