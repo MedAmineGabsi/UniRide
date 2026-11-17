@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import ca.mcgill.ecse428.UniRide_Backend.dto.SeatRequestDto;
 import ca.mcgill.ecse428.UniRide_Backend.exception.UniRideException;
 import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequest;
-import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequestStatus;
 import ca.mcgill.ecse428.UniRide_Backend.service.SeatRequestService;
 
 @CrossOrigin(origins = "*")
@@ -60,9 +59,7 @@ public class SeatRequestController {
             @RequestBody SeatRequestDto.Request requestDto) {
         
         String driverEmail = emailOf(jwt);
-        SeatRequestStatus newStatus = SeatRequestStatus.valueOf(requestDto.getStatus().toUpperCase());
-
-        SeatRequest updatedRequest = seatRequestService.respondToSeatRequest(id, driverEmail, newStatus);
+        SeatRequest updatedRequest = seatRequestService.respondToSeatRequest(id, driverEmail, requestDto.getStatus());
 
         return new ResponseEntity<>(new SeatRequestDto.Response(updatedRequest), HttpStatus.OK);
     }

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ca.mcgill.ecse428.UniRide_Backend.exception.UniRideException;
 import ca.mcgill.ecse428.UniRide_Backend.model.Passenger;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
+import ca.mcgill.ecse428.UniRide_Backend.model.RideStatus;
 import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequest;
 import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequestStatus;
 import ca.mcgill.ecse428.UniRide_Backend.repository.DriverRepository;
@@ -82,7 +83,10 @@ public class SeatRequestService {
     }
 
     @Transactional
-    public SeatRequest respondToSeatRequest(Integer requestId, String driverEmail, SeatRequestStatus newStatus) {
+    public SeatRequest respondToSeatRequest(Integer requestId, String driverEmail, String requestedStatus) {
+        SeatRequestStatus newStatus = validator.parseStatus(requestedStatus);
+        validator.validateResponseStatus(newStatus);
+
         SeatRequest seatRequest = seatRequestRepository.findById(requestId)
                 .orElseThrow(() -> new UniRideException(HttpStatus.NOT_FOUND, "Seat request not found"));
         Ride ride = seatRequest.getRide();
@@ -91,7 +95,17 @@ public class SeatRequestService {
         validator.validatePendingStatus(seatRequest.getStatus());
 
         if (newStatus == SeatRequestStatus.ACCEPTED) {
-            validator.validateRequestedSeats(seatRequest.getSeatsRequested(), seatAvailabilityCalculator.calculateAvailableSeats(ride));
+            if (ride.getStatus() == RideStatus.FULL) {
+                validator.validateRequestedSeats(seatRequest.getSeatsRequested(), 0);
+            }
+            validator.validateRide(ride);
+            validator.validateNotDeparted(ride, LocalDateTime.now(clock));
+            int availableSeats = seatAvailabilityCalculator.calculateAvailableSeats(ride);
+            validator.validateRequestedSeats(seatRequest.getSeatsRequested(), availableSeats);
+            if (seatRequest.getSeatsRequested() == availableSeats) {
+                ride.setStatus(RideStatus.FULL);
+                rideRepository.save(ride);
+            }
         }
 
         seatRequest.setStatus(newStatus);

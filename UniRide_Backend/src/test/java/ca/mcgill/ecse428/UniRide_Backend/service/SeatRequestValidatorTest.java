@@ -14,6 +14,7 @@ import ca.mcgill.ecse428.UniRide_Backend.exception.UniRideException;
 import ca.mcgill.ecse428.UniRide_Backend.model.Driver;
 import ca.mcgill.ecse428.UniRide_Backend.model.Passenger;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
+import ca.mcgill.ecse428.UniRide_Backend.model.RideStatus;
 import ca.mcgill.ecse428.UniRide_Backend.model.SeatRequestStatus;
 
 class SeatRequestValidatorTest {
@@ -46,6 +47,24 @@ class SeatRequestValidatorTest {
         assertEquals(SeatRequestStatus.ACCEPTED, validator.parseStatus("accepted"));
         assertEquals(SeatRequestStatus.REJECTED, validator.parseStatus("REJECTED"));
         assertEquals(SeatRequestStatus.CANCELLED, validator.parseStatus("CANCELLED"));
+    }
+
+    @Test
+    void onlyAcceptedAndRejectedAreValidDriverResponses() {
+        assertDoesNotThrow(() -> validator.validateResponseStatus(SeatRequestStatus.ACCEPTED));
+        assertDoesNotThrow(() -> validator.validateResponseStatus(SeatRequestStatus.REJECTED));
+
+        UniRideException e = assertThrows(UniRideException.class,
+                () -> validator.validateResponseStatus(SeatRequestStatus.PENDING));
+        assertEquals(HttpStatus.BAD_REQUEST, e.getStatus());
+        assertEquals("Only ACCEPTED or REJECTED statuses are allowed", e.getMessage());
+    }
+
+    @Test
+    void nonOwnerIsForbiddenFromResponding() {
+        UniRideException e = assertThrows(UniRideException.class,
+                () -> validator.validateDriverAuthorization(false));
+        assertEquals(HttpStatus.FORBIDDEN, e.getStatus());
     }
 
     @Test
@@ -131,7 +150,7 @@ class SeatRequestValidatorTest {
     @Test
     void nonOpenRideIsRejected() {
         Ride ride = Mockito.mock(Ride.class);
-        when(ride.getStatus()).thenReturn(ca.mcgill.ecse428.UniRide_Backend.model.RideStatus.FULL); 
+        when(ride.getStatus()).thenReturn(RideStatus.FULL);
         
         UniRideException e = assertThrows(UniRideException.class, 
                 () -> validator.validateRide(ride));

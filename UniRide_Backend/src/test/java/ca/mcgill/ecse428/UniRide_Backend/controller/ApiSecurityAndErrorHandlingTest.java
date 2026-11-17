@@ -127,6 +127,38 @@ class ApiSecurityAndErrorHandlingTest {
                 .andExpect(jsonPath("$.message").value("Malformed request body"));
     }
 
+    @Test
+    void respondingWithoutAStatusIsABadRequest() throws Exception {
+        mockMvc.perform(patch("/seat-requests/1").with(signedInAs(UNKNOWN_EMAIL))
+                .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("status is required"));
+    }
+
+    @Test
+    void respondingWithANullStatusIsABadRequest() throws Exception {
+        mockMvc.perform(patch("/seat-requests/1").with(signedInAs(UNKNOWN_EMAIL))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"status\": null}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("status is required"));
+    }
+
+    @Test
+    void respondingWithAnUnknownStatusIsABadRequest() throws Exception {
+        mockMvc.perform(patch("/seat-requests/1").with(signedInAs(UNKNOWN_EMAIL))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"status\": \"MAYBE\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid status: MAYBE"));
+    }
+
+    @Test
+    void respondingWithANonResponseStatusIsABadRequest() throws Exception {
+        mockMvc.perform(patch("/seat-requests/1").with(signedInAs(UNKNOWN_EMAIL))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"status\": \"PENDING\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Only ACCEPTED or REJECTED statuses are allowed"));
+    }
+
     private static org.springframework.test.web.servlet.request.RequestPostProcessor signedInAs(String email) {
         return jwt().jwt(token -> token.claim("email", email));
     }
