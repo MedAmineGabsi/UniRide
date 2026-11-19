@@ -47,9 +47,9 @@ class RideServiceCarSeatsTest {
 
     @BeforeEach
     void setUp() {
-        RideValidator validator = new RideValidator(Clock.fixed(
-                Instant.parse("2026-11-03T15:00:00Z"), ZoneId.of("America/Toronto")));
-        service = new RideService(rides, people, drivers, cars, validator);
+        Clock clock = Clock.fixed(Instant.parse("2026-11-03T15:00:00Z"), ZoneId.of("America/Toronto"));
+        RideValidator validator = new RideValidator(clock);
+        service = new RideService(rides, people, drivers, cars, validator, clock);
         when(people.existsByEmailIgnoreCase(EMAIL)).thenReturn(true);
         when(drivers.findByPersonEmail(EMAIL)).thenReturn(Optional.of(driver));
         when(driver.getId()).thenReturn(7);
