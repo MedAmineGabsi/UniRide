@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import ca.mcgill.ecse428.UniRide_Backend.dto.CreateRideRequest;
 import ca.mcgill.ecse428.UniRide_Backend.dto.RideResponse;
 import ca.mcgill.ecse428.UniRide_Backend.exception.UniRideException;
 import ca.mcgill.ecse428.UniRide_Backend.model.Ride;
+import ca.mcgill.ecse428.UniRide_Backend.service.RideCancellationService;
 import ca.mcgill.ecse428.UniRide_Backend.service.RideService;
 
 @RestController
@@ -26,9 +28,11 @@ public class RideController {
     private static final List<String> EMAIL_CLAIMS = List.of("email", "preferred_username", "upn");
 
     private final RideService rideService;
+    private final RideCancellationService rideCancellationService;
 
-    public RideController(RideService rideService) {
+    public RideController(RideService rideService, RideCancellationService rideCancellationService) {
         this.rideService = rideService;
+        this.rideCancellationService = rideCancellationService;
     }
 
     /**
@@ -43,6 +47,24 @@ public class RideController {
         Ride ride = rideService.createRide(emailOf(jwt), request);
         return ResponseEntity.created(URI.create("/api/rides/" + ride.getId()))
                 .body(RideResponse.from(ride));
+    }
+
+    @PostMapping("/{rideId}/finish")
+    public ResponseEntity<Void> finishRide(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer rideId) {
+        rideService.finishRide(emailOf(jwt), rideId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Cancels the signed-in driver's ride, along with its pending and accepted seat requests.
+     *
+     * <p>204 on success; 403 if the user is not the ride's driver; 404 if the ride does not exist;
+     * 409 if the ride is not Open or Full or has already departed.
+     */
+    @PostMapping("/{rideId}/cancel")
+    public ResponseEntity<Void> cancelRide(@AuthenticationPrincipal Jwt jwt, @PathVariable Integer rideId) {
+        rideCancellationService.cancelRide(emailOf(jwt), rideId);
+        return ResponseEntity.noContent().build();
     }
 
     private static String emailOf(Jwt jwt) {
