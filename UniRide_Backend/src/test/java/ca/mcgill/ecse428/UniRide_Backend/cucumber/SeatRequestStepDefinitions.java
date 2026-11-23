@@ -186,6 +186,33 @@ public class SeatRequestStepDefinitions {
         assertEquals(status, response.getStatus(), response.getContentAsString());
     }
 
+    // ------------------------------------------------------------------ ID21
+
+    @When("user {string} attempts to cancel ride {int}")
+    public void userAttemptsToCancelRide(String email, int rideId) throws Exception {
+        lastResponse.set(mockMvc.perform(post("/api/rides/{rideId}/cancel", databaseIdOf(rideId))
+                .with(jwt().jwt(token -> token.claim("email", email))))
+                .andReturn().getResponse());
+    }
+
+    @Then("the cancel-ride response status is {int}")
+    public void cancelRideResponseStatusIs(int status) throws Exception {
+        MockHttpServletResponse response = lastResponse.get();
+        assertEquals(status, response.getStatus(), response.getContentAsString());
+    }
+
+    @Then("the seat request of passenger {string} on ride {int} has status {string}")
+    public void seatRequestHasStatus(String email, int rideId, String status) {
+        String actual = jdbcTemplate.queryForObject("""
+                SELECT s.status
+                FROM seat_request s
+                JOIN person_role_assignment a ON a.role_id = s.passenger_id
+                JOIN person p ON p.id = a.person_id
+                WHERE lower(p.email) = lower(?) AND s.ride_id = ?
+                """, String.class, email, databaseIdOf(rideId));
+        assertEquals(status.trim().toUpperCase(Locale.ROOT), actual);
+    }
+
     // ------------------------------------------------------------------ ID05
 
     @Given("passenger {string} already has a seat request on ride {int} with status {string}")
