@@ -86,6 +86,12 @@ public class RideService {
 
     @Transactional
     public void finishRide(String driverEmail, Integer rideId) {
+        if (driverEmail == null || driverEmail.isBlank()) {
+            throw new UniRideException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
+        if (!personRepository.existsByEmailIgnoreCase(driverEmail.trim())) {
+            throw new UniRideException(HttpStatus.NOT_FOUND, USER_NOT_FOUND_MESSAGE);
+        }
         Driver driver = driverRepository.findByPersonEmail(driverEmail.trim())
                 .orElseThrow(() -> new UniRideException(HttpStatus.FORBIDDEN, "Only the ride owner can finish it"));
         Ride ride = rideRepository.findByIdForUpdate(rideId)

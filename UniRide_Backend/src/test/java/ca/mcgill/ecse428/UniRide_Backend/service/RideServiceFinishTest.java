@@ -35,8 +35,9 @@ class RideServiceFinishTest {
 
     private final RideRepository rides = mock(RideRepository.class);
     private final DriverRepository drivers = mock(DriverRepository.class);
+    private final PersonRepository people = mock(PersonRepository.class);
     private final Driver owner = mock(Driver.class);
-    private final RideService service = new RideService(rides, mock(PersonRepository.class), drivers,
+    private final RideService service = new RideService(rides, people, drivers,
             mock(CarRepository.class), mock(RideValidator.class), Clock.fixed(CURRENT_INSTANT, MONTREAL));
 
     @ParameterizedTest
@@ -58,11 +59,26 @@ class RideServiceFinishTest {
 
     @Test
     void userWithoutDriverRoleCannotFinishRide() {
+        when(people.existsByEmailIgnoreCase(EMAIL)).thenReturn(true);
         assertRejected(HttpStatus.FORBIDDEN);
     }
 
     @Test
+    void unregisteredUserIsNotFound() {
+        assertRejected(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void missingIdentityIsUnauthorized() {
+        assertEquals(HttpStatus.UNAUTHORIZED, assertThrows(UniRideException.class,
+                () -> service.finishRide(null, RIDE_ID)).getStatus());
+        assertEquals(HttpStatus.UNAUTHORIZED, assertThrows(UniRideException.class,
+                () -> service.finishRide("  ", RIDE_ID)).getStatus());
+    }
+
+    @Test
     void missingRideIsNotFound() {
+        when(people.existsByEmailIgnoreCase(EMAIL)).thenReturn(true);
         when(drivers.findByPersonEmail(EMAIL)).thenReturn(Optional.of(owner));
         assertRejected(HttpStatus.NOT_FOUND);
     }
@@ -83,6 +99,7 @@ class RideServiceFinishTest {
     }
 
     private Ride givenRide(RideStatus status, LocalDateTime departure, Driver requestingDriver) {
+        when(people.existsByEmailIgnoreCase(EMAIL)).thenReturn(true);
         when(owner.getId()).thenReturn(1);
         when(drivers.findByPersonEmail(EMAIL)).thenReturn(Optional.of(requestingDriver));
         Ride ride = new Ride(owner, "Montreal", "Ottawa", departure, 60, 4, new BigDecimal("15.00"));
