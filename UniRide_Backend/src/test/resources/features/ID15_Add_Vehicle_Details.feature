@@ -1,4 +1,4 @@
-@ID15 @wip
+@ID15
 Feature: Add Vehicle Details
   As a UniRide Driver
   I want to add the details of my vehicle to my profile
