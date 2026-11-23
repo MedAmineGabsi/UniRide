@@ -54,6 +54,25 @@ class ApiSecurityAndErrorHandlingTest {
     }
 
     @Test
+    void finishingARideRequiresSignIn() throws Exception {
+        mockMvc.perform(post("/api/rides/1/finish")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void unknownUserCannotFinishARide() throws Exception {
+        mockMvc.perform(post("/api/rides/1/finish").with(signedInAs(UNKNOWN_EMAIL)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("User not found"));
+    }
+
+    @Test
+    void finishTokenWithoutEmailIsRejected() throws Exception {
+        mockMvc.perform(post("/api/rides/1/finish").with(jwt()))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Token does not contain an email"));
+    }
+
+    @Test
     void requestingASeatRequiresSignIn() throws Exception {
         mockMvc.perform(post("/seat-requests").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"rideId\": 1, \"seatsRequested\": 1}"))

@@ -2,6 +2,7 @@
 package ca.mcgill.ecse428.UniRide_Backend.cucumber;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -115,6 +116,11 @@ public class SeatRequestStepDefinitions {
         testClock.setTo(LocalDate.parse(date).atStartOfDay());
     }
 
+    @Given("the current date and time is {string}")
+    public void theCurrentDateAndTimeIs(String dateTime) {
+        testClock.setTo(LocalDateTime.parse(dateTime, RideValidator.DEPARTURE_FORMAT));
+    }
+
     @Given("the following drivers exist:")
     public void theFollowingDriversExist(DataTable drivers) {
         for (Map<String, String> row : drivers.asMaps()) {
@@ -154,6 +160,30 @@ public class SeatRequestStepDefinitions {
                 saveSeatRequest(otherPassenger(), ride, accepted, SeatRequestStatus.ACCEPTED);
             }
         }
+    }
+
+    @Given("ride {int} does not exist")
+    public void rideDoesNotExist(int rideId) {
+        assertFalse(rideRepository.existsById(databaseIdOf(rideId)));
+    }
+
+    @Then("ride {int} has status {string}")
+    public void rideHasStatus(int rideId, String status) {
+        Ride ride = rideRepository.findById(databaseIdOf(rideId)).orElseThrow();
+        assertEquals(RideStatus.valueOf(status.toUpperCase(Locale.ROOT)), ride.getStatus());
+    }
+
+    @When("driver {string} attempts to finish ride {int}")
+    public void driverAttemptsToFinishRide(String email, int rideId) throws Exception {
+        lastResponse.set(mockMvc.perform(post("/api/rides/{rideId}/finish", databaseIdOf(rideId))
+                .with(jwt().jwt(token -> token.claim("email", email))))
+                .andReturn().getResponse());
+    }
+
+    @Then("the finish-ride response status is {int}")
+    public void finishRideResponseStatusIs(int status) throws Exception {
+        MockHttpServletResponse response = lastResponse.get();
+        assertEquals(status, response.getStatus(), response.getContentAsString());
     }
 
     // ------------------------------------------------------------------ ID05
